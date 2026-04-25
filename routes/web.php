@@ -9,6 +9,14 @@ use App\Http\Controllers\Frontend\PredictionsController;
 use App\Http\Controllers\Frontend\PremiumController;
 use App\Http\Controllers\Frontend\ContactController;
 
+
+use App\Http\Controllers\Manager\HomeController as ManagerHomeController;
+use App\Http\Controllers\Manager\AboutController as ManagerAboutController;
+use App\Http\Controllers\Manager\PremiumController as ManagerPremiumController;
+use App\Http\Controllers\Manager\PredictionsController as ManagerPredictionsController;
+use App\Http\Controllers\Manager\UsersController as ManagerUsersController;
+use App\Http\Controllers\Manager\MessagesController as ManagerMessagesController;
+
 /*
 |--------------------------------------------------------------------------
 | FRONTEND ROUTES
@@ -75,18 +83,50 @@ Route::middleware(['auth'])->group(function () {
 | ADMIN ROUTES (ROLE BASED)
 |--------------------------------------------------------------------------
 */
+Route::middleware(['auth', 'role:co_operational_manager'])
+->prefix('admin/manager')
+->name('admin.manager.')
+->group(function () {
 
-Route::middleware(['auth', 'role:co_operational_manager'])->group(function () {
+    Route::get('/', function () {
+        return view('admin.manager.dashboard');
+    })->name('dashboard');
 
-    Route::get('/admin/manager', function () {
-        return view('admin.manager');
-    })->name('admin.manager');
+    // HOME
+    Route::resource('home', ManagerHomeController::class);
+
+    // ABOUT
+    Route::resource('about', ManagerAboutController::class);
+
+    // PREMIUM
+    Route::resource('premium', ManagerPremiumController::class);
+
+    // PREDICTIONS
+    Route::resource('predictions', ManagerPredictionsController::class);
+
+    // USERS
+    Route::resource('users', ManagerUsersController::class);
+
+    // MESSAGES
+    Route::resource('messages', ManagerMessagesController::class);
 });
 
 
-Route::middleware(['auth', 'role:co_lead_developer'])->group(function () {
 
-    Route::get('/admin/dev', function () {
-        return view('admin.dev');
-    })->name('admin.dev');
+
+
+Route::middleware(['auth', 'role:co_lead_developer'])->prefix('admin/dev')->name('admin.dev.')->group(function () {
+
+    Route::get('/', function () {
+        return view('admin.dev.dashboard');
+    })->name('dashboard');
+
+    Route::get('/logs', function () {
+        return view('admin.dev.logs');
+    })->name('logs');
+
+    Route::get('/settings', function () {
+        return view('admin.dev.settings');
+    })->name('settings');
+
 });
