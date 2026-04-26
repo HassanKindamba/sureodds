@@ -513,3 +513,81 @@ html {
 .nav-btns a {
   text-decoration: none;
 }
+
+/* Overlay nyeusi juu ya background image */
+.hero-bg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55); /* punguza/ongeza 0.55 kulingana na upendeleo */
+    z-index: 1;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+}
+
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Maandishi yote yabaki juu ya overlay */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* Title kubwa */
+.hero-title {
+    color: #ffffff;
+    font-size: 3rem;
+    font-weight: 800;
+    text-shadow: 0 3px 10px rgba(0,0,0,0.8);
+}
+
+/* Description */
+.hero-sub {
+    color: #e2e8f0;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+}
+
+/* Stats */
+.stat-val {
+    color: #facc15; /* njano/gold inaonekana vizuri */
+    font-size: 2rem;
+    font-weight: 700;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.stat-label {
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+/* Stats row - ongeza background nyepesi */
+.stats-row {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+}
+
+
+

@@ -4,23 +4,82 @@
 @section('content')
 
 {{-- HOME SECTION --}}
-<section id="home">
+<section id="home" class="hero-section">
+
+  {{-- BACKGROUND IMAGE --}}
+  @if($home && $home->image)
+    <div class="hero-bg"
+         style="background-image: url('{{ asset('storage/'.$home->image) }}')">
+    </div>
+  @endif
+
   <div class="hero-content">
-    <div class="hero-tag">⚽ Predictions #1 Tanzania</div>
-    <h1 class="hero-title">MIKEKA YA<br><span>UBORA</span><br>KILA SIKU</h1>
-    <p class="hero-sub">Pata uchambuzi wa kina wa mechi, codes za mikeka, na bashiri kwa ujasiri kwenye beti yako unayopenda.</p>
+
+    {{-- TITLE --}}
+    <h1 class="hero-title">
+      {!! nl2br(e($home->title)) !!}
+    </h1>
+
+    {{-- DESCRIPTION --}}
+    <p class="hero-sub">
+      {{ $home->description }}
+    </p>
+
+    {{-- BUTTONS --}}
     <div class="hero-btns">
-      <button class="cta-primary" onclick="document.getElementById('mikeka').scrollIntoView({behavior:'smooth'})">Tazama Mikeka</button>
-      <a href="#premium" class="cta-secondary">Jiunge VIP →</a>
+      <button class="cta-primary"
+        onclick="document.getElementById('mikeka').scrollIntoView({behavior:'smooth'})">
+        Tazama Mikeka
+      </button>
+
+      <a href="#premium" class="cta-secondary">
+        Jiunge VIP →
+      </a>
     </div>
+
+    {{-- STATS --}}
     <div class="stats-row">
-      <div class="stat-item"><div class="stat-val">91%</div><div class="stat-label">Usahihi</div></div>
-      <div class="stat-item"><div class="stat-val">8,400+</div><div class="stat-label">Wanachama</div></div>
-      <div class="stat-item"><div class="stat-val">30+</div><div class="stat-label">Mikeka Leo</div></div>
-      <div class="stat-item"><div class="stat-val">5+</div><div class="stat-label">Miaka Uzoefu</div></div>
+
+      <div class="stat-item">
+        <div class="stat-val">
+          {{ $home->stat_accuracy_value }}
+        </div>
+        <div class="stat-label">
+          {{ $home->stat_accuracy_label ?? 'Usahihi' }}
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-val">
+          {{ $home->stat_members_value }}
+        </div>
+        <div class="stat-label">
+          {{ $home->stat_members_label ?? 'Wanachama' }}
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-val">
+          {{ $home->stat_picks_value }}
+        </div>
+        <div class="stat-label">
+          {{ $home->stat_picks_label ?? 'Mikeka Leo' }}
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-val">
+          {{ $home->stat_experience_value }}
+        </div>
+        <div class="stat-label">
+          {{ $home->stat_experience_label ?? 'Miaka Uzoefu' }}
+        </div>
+      </div>
     </div>
+
   </div>
 </section>
+
 
 {{-- PREDICTIONS --}}
 <section id="mikeka">

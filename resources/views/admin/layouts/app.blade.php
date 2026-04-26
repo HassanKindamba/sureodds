@@ -76,6 +76,48 @@
         .content {
             padding: 20px;
         }
+
+        /* FORM STYLING */
+    input, textarea {
+        width: 70%;
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+    button {
+        padding: 10px 20px;
+        background: #16a34a;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #15803d;
+    }
+
+    /* CARD */
+    .card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+
+    max-width: 700px;   /* punguza width kidogo */
+    margin: 40px auto;  /* HII NDIO MUHIMU (center) */
+    }
+
+/*css za home hero*/
+
     </style>
 </head>
 
@@ -86,7 +128,7 @@
         <h2>SureOdds</h2>
 
        {{-- MANAGER MENU --}}
-@if(auth()->user()->role === 'co_operational_manager')
+@if(auth()->user()?->role === 'co_operational_manager')
 
     <a href="{{ route('admin.manager.dashboard') }}"
        class="{{ request()->routeIs('admin.manager.dashboard') ? 'active' : '' }}">
@@ -128,11 +170,11 @@
 
 
         {{-- DEVELOPER MENU --}}
-        @if(auth()->user()->role === 'co_lead_developer')
+        @if(auth()->user()?->role === 'co_lead_developer')
 
-            <a href="{{ route('admin.dev') }}"
-               class="{{ request()->routeIs('admin.dev') ? 'active' : '' }}">
-               Dashboard
+            <a href="{{ route('admin.dev.index') }}"
+            class="{{ request()->routeIs('admin.dev.*') ? 'active' : '' }}">
+            Dashboard
             </a>
 
             <a href="/admin/dev/logs">Logs</a>
@@ -156,23 +198,25 @@
 
 
     <!-- MAIN -->
-    <div class="main">
+<div class="main">
 
-        <!-- TOPBAR -->
-        <div class="topbar">
-            <div>Admin Panel</div>
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div>Admin Panel</div>
 
-            <div class="user">
+        <div>
+            @if(auth()->check())
                 {{ auth()->user()->name }} ({{ auth()->user()->role }})
-            </div>
+            @endif
         </div>
-
-        <!-- CONTENT -->
-        <div class="content">
-            @yield('content')
-        </div>
-
     </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        @yield('content')
+    </div>
+
+</div>
 
 </body>
 </html>
