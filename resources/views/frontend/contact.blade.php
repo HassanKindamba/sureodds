@@ -30,23 +30,49 @@
         <div><p>Masaa ya Kazi</p><p>Jumatatu – Jumamosi, 08:00 – 22:00</p></div>
       </div>
     </div>
-    <form class="contact-form" onsubmit="sendMessage(event)">
-      <div class="form-group"><label>Jina Lako</label><input type="text" placeholder="Andika jina lako..." required></div>
-      <div class="form-group"><label>Barua Pepe au Namba</label><input type="text" placeholder="email@example.com au +255..." required></div>
-      <div class="form-group">
-        <label>Sababu ya Kuwasiliana</label>
-        <select>
-          <option value="">Chagua sababu...</option>
-          <option>Swali kuhusu Mikeka</option>
-          <option>Msaada wa Akaunti</option>
-          <option>Malipo / Usajili VIP</option>
-          <option>Code Haifanyi Kazi</option>
-          <option>Nyingine</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Ujumbe</label><textarea placeholder="Andika ujumbe wako hapa..."></textarea></div>
-      <button type="submit" class="submit-btn">Tuma Ujumbe →</button>
-      <div class="success-msg" id="successMsg">✅ Asante! Ujumbe wako umetumwa. Tutakujibu hivi karibuni.</div>
-    </form>
+
+   @if(session('success'))
+    <div style="background:#16a34a;color:white;padding:10px;border-radius:8px;margin-bottom:15px;">
+        {{ session('success') }}
+    </div>
+@endif
+   <form class="contact-form" method="POST" action="/contact">
+  @csrf
+
+  <div class="form-group">
+    <label>Jina Lako</label>
+    <input type="text" name="name" placeholder="Andika jina lako..." required>
+  </div>
+
+  <div class="form-group">
+    <label>Barua Pepe au Namba</label>
+    <input type="text" name="contact" placeholder="email@example.com au +255..." required>
+  </div>
+
+  <div class="form-group">
+    <label>Sababu ya Kuwasiliana</label>
+    <select name="reason">
+      <option value="">Chagua sababu...</option>
+      <option>Swali kuhusu Mikeka</option>
+      <option>Msaada wa Akaunti</option>
+      <option>Malipo / Usajili VIP</option>
+      <option>Code Haifanyi Kazi</option>
+      <option>Nyingine</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Ujumbe</label>
+    <textarea name="message" placeholder="Andika ujumbe wako hapa..."></textarea>
+  </div>
+
+  <button type="submit" class="submit-btn">Tuma Ujumbe →</button>
+
+  @if(session('success'))
+    <div class="success-msg">
+      {{ session('success') }}
+    </div>
+  @endif
+</form>
   </div>
 </section>

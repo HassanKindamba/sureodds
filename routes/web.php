@@ -37,6 +37,8 @@ Route::get('/about', [AboutController::class, 'about'])
 
 Route::get('/contact', [ContactController::class, 'contact'])
     ->name('frontend.contact');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->name('frontend.contact.store');
 
 
 /*
@@ -115,18 +117,21 @@ Route::middleware(['auth', 'role:co_operational_manager'])
 
 
 
-Route::middleware(['auth', 'role:co_lead_developer'])->prefix('admin/dev')->name('admin.dev.')->group(function () {
+Route::middleware(['auth', 'role:co_lead_developer'])
+    ->prefix('admin/dev')
+    ->name('admin.dev.')
+    ->group(function () {
 
-    Route::get('/', function () {
-        return view('admin.dev.dashboard');
-    })->name('dashboard');
+        Route::get('/', function () {
+            return view('admin.dev.dashboard'); // better kuliko string
+        })->name('index');
 
-    Route::get('/logs', function () {
-        return view('admin.dev.logs');
-    })->name('logs');
+        Route::get('/logs', function () {
+            return view('admin.dev.logs');
+        })->name('logs');
 
-    Route::get('/settings', function () {
-        return view('admin.dev.settings');
-    })->name('settings');
+        Route::get('/settings', function () {
+            return view('admin.dev.settings');
+        })->name('settings');
 
-});
+    });
