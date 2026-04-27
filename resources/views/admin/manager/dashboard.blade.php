@@ -26,7 +26,7 @@
 
     <div style="background:#fff; padding:20px; border-radius:10px;">
         <h3>Messages</h3>
-        <p>0</p>
+        <p>{{ $messages }}</p>
     </div>
 
 </div>

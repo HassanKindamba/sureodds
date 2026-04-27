@@ -124,18 +124,17 @@
                 ⬅ Back
             </a>
 
-            <form action="{{ route('admin.manager.messages.destroy', $message->id) }}"
-                  method="POST"
-                  onsubmit="return confirm('Unataka kufuta ujumbe huu?')">
+            <form action="{{ route('admin.manager.messages.destroy', $message) }}"
+            method="POST"
+            onsubmit="return confirm('Unataka kufuta ujumbe huu?')">
 
-                @csrf
-                @method('DELETE')
+                                @csrf
+                                @method('DELETE')
 
-                <button type="submit" class="btn btn-delete">
-                    🗑 Delete
-                </button>
-
-            </form>
+                                <button class="btn btn-delete">
+                                    Delete
+                                </button>
+                                </form>
 
         </div>
 

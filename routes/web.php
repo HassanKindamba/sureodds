@@ -10,6 +10,7 @@ use App\Http\Controllers\Frontend\PremiumController;
 use App\Http\Controllers\Frontend\ContactController;
 
 
+use App\Http\Controllers\Manager\DashboardController;
 use App\Http\Controllers\Manager\HomeController as ManagerHomeController;
 use App\Http\Controllers\Manager\AboutController as ManagerAboutController;
 use App\Http\Controllers\Manager\PremiumController as ManagerPremiumController;
@@ -90,9 +91,8 @@ Route::middleware(['auth', 'role:co_operational_manager'])
 ->name('admin.manager.')
 ->group(function () {
 
-    Route::get('/', function () {
-        return view('admin.manager.dashboard');
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])
+    ->name('dashboard');
 
     // HOME
     Route::resource('home', ManagerHomeController::class);
