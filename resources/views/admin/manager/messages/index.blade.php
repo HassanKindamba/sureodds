@@ -136,22 +136,21 @@
 
                             <td style="display:flex; gap:5px;">
 
-                                <a href="{{ route('admin.manager.messages.show', $msg->id) }}"
-                                   class="btn btn-view">
+                                <a href="{{ route('admin.manager.messages.show', $msg) }}"
+                                class="btn btn-view">
                                     View
                                 </a>
 
-                                <form action="{{ route('admin.manager.messages.destroy', $msg->id) }}"
-                                      method="POST"
-                                      onsubmit="return confirm('Unataka kufuta ujumbe huu?')">
+                                <form action="{{ route('admin.manager.messages.destroy', $msg) }}"
+                                method="POST"
+                                onsubmit="return confirm('Unataka kufuta ujumbe huu?')">
 
-                                    @csrf
-                                    @method('DELETE')
+                                @csrf
+                                @method('DELETE')
 
-                                    <button class="btn btn-delete">
-                                        Delete
-                                    </button>
-
+                                <button class="btn btn-delete">
+                                    Delete
+                                </button>
                                 </form>
 
                             </td>
