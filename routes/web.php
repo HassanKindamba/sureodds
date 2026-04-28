@@ -33,8 +33,7 @@ Route::get('/predictions', [PredictionsController::class, 'predictions'])
 Route::get('/premium', [PremiumController::class, 'premium'])
     ->name('frontend.premium');
 
-Route::get('/about', [AboutController::class, 'about'])
-    ->name('frontend.about');
+Route::get('/about', [AboutController::class, 'index'])->name('frontend.about');
 
 Route::get('/contact', [ContactController::class, 'contact'])
     ->name('frontend.contact');
