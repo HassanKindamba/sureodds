@@ -39,39 +39,46 @@
   </div>
 
   <!-- FOUNDERS -->
-  <div class="founders-wrap">
+<div class="founders-wrap">
     <div class="founders-title">👨‍💼 Waanzilishi</div>
+
     <div class="founders-grid">
 
-      <div class="founder-card">
-        <div class="founder-avatar">
-          <img src="owner1.jpg" onerror="this.style.display='none';this.parentElement.textContent='JM'">
-        </div>
-        <div class="founder-info">
-          <h4>John Mwita</h4>
-          <div class="founder-role">Co-Founder & Operations Manager</div>
-          <div class="founder-contact">
-            <span>📧 john@sureodds.tz</span>
-            <span>📱 +255 712 000 111</span>
-          </div>
-        </div>
-      </div>
+        @foreach($founders as $founder)
 
-      <div class="founder-card">
-        <div class="founder-avatar">
-          <img src="owner2.jpg" onerror="this.style.display='none';this.parentElement.textContent='AK'">
+        <div class="founder-card">
+
+            <div class="founder-avatar">
+
+                @if($founder->image)
+                    <img src="{{ asset('storage/'.$founder->image) }}"
+                         onerror="this.style.display='none';this.parentElement.textContent='{{ strtoupper(substr($founder->name,0,2)) }}'">
+                @else
+                    <div>
+                        {{ strtoupper(substr($founder->name,0,2)) }}
+                    </div>
+                @endif
+
+            </div>
+
+            <div class="founder-info">
+                <h4>{{ $founder->name }}</h4>
+
+                <div class="founder-role">
+                    {{ $founder->role }}
+                </div>
+
+                <div class="founder-contact">
+                    <span>📧 {{ $founder->email }}</span>
+                    <span>📱 {{ $founder->phone }}</span>
+                </div>
+            </div>
+
         </div>
-        <div class="founder-info">
-          <h4>Asha Khamis</h4>
-          <div class="founder-role">Co-Founder & Lead Developer</div>
-          <div class="founder-contact">
-            <span>📧 asha@sureodds.tz</span>
-            <span>📱 +255 713 000 222</span>
-          </div>
-        </div>
-      </div>
+
+        @endforeach
 
     </div>
-  </div>
+</div>
 </section>
 @endsection
