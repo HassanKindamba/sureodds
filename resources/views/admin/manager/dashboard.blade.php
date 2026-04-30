@@ -11,7 +11,7 @@
 
     <div style="background:#fff; padding:20px; border-radius:10px;">
         <h3>Predictions</h3>
-        <p>0</p>
+        <p>{{ $predictions }}</p>
     </div>
 
     <div style="background:#fff; padding:20px; border-radius:10px;">
