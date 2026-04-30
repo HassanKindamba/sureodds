@@ -3,11 +3,16 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\BetSlip;
 
 class PredictionsController extends Controller
 {
-    public function predictions(){
-        return view('frontend.predictions');
+    public function predictions()
+    {
+        $betSlips = BetSlip::with('predictions')
+            ->latest()
+            ->get();
+
+        return view('frontend.predictions', compact('betSlips'));
     }
 }
