@@ -169,32 +169,38 @@
 
 
 
-        {{-- DEVELOPER MENU --}}
-        @if(auth()->user()?->role === 'co_lead_developer')
+{{-- DEVELOPER MENU --}}
+@if(auth()->user()?->role === 'co_lead_developer')
 
-            <a href="{{ route('admin.dev.index') }}"
-            class="{{ request()->routeIs('admin.dev.*') ? 'active' : '' }}">
-            Dashboard
-            </a>
+    <a href="{{ route('admin.dev.index') }}"
+    class="{{ request()->routeIs('admin.dev.*') ? 'active' : '' }}">
+    Dashboard
+    </a>
 
-            <a href="/admin/dev/logs">Logs</a>
-            <a href="/admin/dev/settings">Settings</a>
-            <a href="/admin/dev/devtools">Dev Tools</a>
+    <a href="/admin/dev/logs">Logs</a>
+    <a href="/admin/dev/settings">Settings</a>
 
-        @endif
+    {{-- ADDED ONLY --}}
+    <a href="/admin/dev/logic">Logic Control</a>
+    <a href="/admin/dev/roles">Roles</a>
+    <a href="/admin/dev/monitoring">System Monitoring</a>
+
+    <a href="/admin/dev/devtools">Dev Tools</a>
+
+@endif
 
 
-        {{-- LOGOUT --}}
-        <a href="{{ route('logout') }}"
-           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-           Logout
-        </a>
+{{-- LOGOUT --}}
+<a href="{{ route('logout') }}"
+   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+   Logout
+</a>
 
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
-            @csrf
-        </form>
+<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+    @csrf
+</form>
 
-    </div>
+</div>
 
 
     <!-- MAIN -->
