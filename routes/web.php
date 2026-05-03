@@ -122,7 +122,7 @@ Route::middleware(['auth', 'role:co_lead_developer'])
     ->group(function () {
 
         Route::get('/', function () {
-            return view('admin.dev.dashboard'); // better kuliko string
+            return view('admin.dev.dashboard');
         })->name('index');
 
         Route::get('/logs', function () {
@@ -132,5 +132,19 @@ Route::middleware(['auth', 'role:co_lead_developer'])
         Route::get('/settings', function () {
             return view('admin.dev.settings');
         })->name('settings');
+
+        // ✅ ADDED: POST route for settings update
+        Route::post('/settings', function (\Illuminate\Http\Request $request) {
+
+            foreach ($request->except('_token') as $key => $value) {
+                \App\Models\Setting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $value]
+                );
+            }
+
+            return back()->with('success', 'Settings updated successfully');
+
+        })->name('settings.update');
 
     });

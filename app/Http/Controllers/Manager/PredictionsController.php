@@ -84,33 +84,49 @@ public function store(Request $request)
     }
 
     public function update(Request $request, $id)
-    {
-        $betSlip = BetSlip::findOrFail($id);
+{
+    $betSlip = BetSlip::findOrFail($id);
 
-        $betSlip->update([
-            'bet_code' => $request->bet_code,
-            'bookmaker' => $request->bookmaker,
-            'betting_link' => $request->betting_link,
-        ]);
+    $betSlip->update([
+        'bet_code' => $request->bet_code,
+        'bookmaker' => $request->bookmaker,
+        'betting_link' => $request->betting_link,
+    ]);
 
-        // delete old matches
-        $betSlip->predictions()->delete();
+    // 🔒 LIMIT CONTROL (optional but recommended)
+    $limit = setting('daily_prediction_limit');
+
+    $countToday = $betSlip->predictions()
+        ->whereDate('created_at', today())
+        ->count();
+
+    if ($countToday >= $limit) {
+        return back()->with('error', 'Daily prediction limit reached for updates');
+    }
+
+    // delete old matches
+    $betSlip->predictions()->delete();
+
+    // 🛡️ safety check
+    if ($request->matches && is_array($request->matches)) {
 
         // insert new matches
         foreach ($request->matches as $key => $match) {
             $betSlip->predictions()->create([
                 'match' => $match,
                 'league' => $request->leagues[$key] ?? null,
-                'match_date' => $request->match_dates[$key],
-                'match_time' => $request->match_times[$key],
-                'prediction' => $request->predictions[$key],
+                'match_date' => $request->match_dates[$key] ?? null,
+                'match_time' => $request->match_times[$key] ?? null,
+                'prediction' => $request->predictions[$key] ?? null,
                 'odds' => $request->odds[$key] ?? null,
             ]);
         }
-
-        return redirect()->route('admin.manager.predictions.index')->with('success', 'Updated successfully');
     }
 
+    return redirect()
+        ->route('admin.manager.predictions.index')
+        ->with('success', 'Updated successfully');
+}
         public function show($id)
     {
         $betSlip = BetSlip::with('predictions')->findOrFail($id);
