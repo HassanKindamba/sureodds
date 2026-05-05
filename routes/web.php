@@ -126,7 +126,8 @@ Route::middleware(['auth', 'role:co_lead_developer'])
         })->name('index');
 
         Route::get('/logs', function () {
-            return view('admin.dev.logs');
+            $logs = \App\Models\ActivityLog::latest()->paginate(20);
+            return view('admin.dev.logs', compact('logs'));
         })->name('logs');
 
         Route::get('/settings', function () {

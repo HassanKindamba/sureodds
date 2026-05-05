@@ -18,58 +18,61 @@ class PredictionsController extends Controller
         return view('admin.manager.predictions.index', compact('betSlips'));
     }
 
-public function store(Request $request)
-{
-    DB::beginTransaction();
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
 
-    try {
+        try {
 
-        $betSlip = BetSlip::create([
-            'bet_code' => $request->bet_code,
-            'bookmaker' => $request->bookmaker,
-            'betting_link' => $request->betting_link,
-        ]);
+            $betSlip = BetSlip::create([
+                'bet_code' => $request->bet_code,
+                'bookmaker' => $request->bookmaker,
+                'betting_link' => $request->betting_link,
+            ]);
 
-        foreach ($request->matches ?? [] as $key => $match) {
+            foreach ($request->matches ?? [] as $key => $match) {
 
-            if (!$match) {
-                continue;
+                if (!$match) {
+                    continue;
+                }
+
+                Prediction::create([
+                    'bet_slip_id' => $betSlip->id,
+                    'match' => $match,
+                    'league' => $request->leagues[$key] ?? null,
+                    'match_date' => $request->match_dates[$key] ?? null,
+                    'match_time' => $request->match_times[$key] ?? null,
+                    'prediction' => $request->predictions[$key] ?? null,
+                    'odds' => $request->odds[$key] ?? null,
+                ]);
             }
 
-            Prediction::create([
-                'bet_slip_id' => $betSlip->id,
-                'match' => $match,
-                'league' => $request->leagues[$key] ?? null,
-                'match_date' => $request->match_dates[$key] ?? null,
-                'match_time' => $request->match_times[$key] ?? null,
-                'prediction' => $request->predictions[$key] ?? null,
-                'odds' => $request->odds[$key] ?? null,
+            DB::commit();
+
+            logActivity('add_prediction', 'BetSlip created: ' . $betSlip->bet_code);
+
+            return redirect()
+                ->route('admin.manager.predictions.index')
+                ->with('success', 'Mkeka umewekwa kikamilifu!');
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            logActivity('error', 'STORE ERROR | BetSlip create failed | ' . $e->getMessage());
+
+            \Log::error('Prediction Store Error', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'user_id' => auth()->id(),
             ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Kuna tatizo limetokea wakati wa kuhifadhi mkeka.');
         }
-
-        DB::commit();
-
-        return redirect()
-            ->route('admin.manager.predictions.index')
-            ->with('success', 'Mkeka umewekwa kikamilifu!');
-
-    } catch (\Throwable $e) {
-
-        DB::rollBack();
-
-        // LOG ERROR (for developer)
-        \Log::error('Prediction Store Error: ' . $e->getMessage(), [
-            'line' => $e->getLine(),
-            'file' => $e->getFile(),
-        ]);
-
-        // USER FRIENDLY MESSAGE
-        return back()
-            ->withInput()
-            ->with('error', 'Kuna tatizo limetokea wakati wa kuhifadhi mkeka. Tafadhali jaribu tena.');
     }
-}
-
 
     public function create()
     {
@@ -78,88 +81,115 @@ public function store(Request $request)
 
     public function edit($id)
     {
-        $betSlip = BetSlip::with('predictions')->findOrFail($id);
+        try {
+            $betSlip = BetSlip::with('predictions')->findOrFail($id);
 
-        return view('admin.manager.predictions.edit', compact('betSlip'));
-    }
+            return view('admin.manager.predictions.edit', compact('betSlip'));
 
-    public function update(Request $request, $id)
-{
-    $betSlip = BetSlip::findOrFail($id);
+        } catch (\Throwable $e) {
 
-    $betSlip->update([
-        'bet_code' => $request->bet_code,
-        'bookmaker' => $request->bookmaker,
-        'betting_link' => $request->betting_link,
-    ]);
+            logActivity('error', 'EDIT LOAD ERROR | BetSlip ID: ' . $id . ' | ' . $e->getMessage());
 
-    // 🔒 LIMIT CONTROL (optional but recommended)
-    $limit = setting('daily_prediction_limit');
-
-    $countToday = $betSlip->predictions()
-        ->whereDate('created_at', today())
-        ->count();
-
-    if ($countToday >= $limit) {
-        return back()->with('error', 'Daily prediction limit reached for updates');
-    }
-
-    // delete old matches
-    $betSlip->predictions()->delete();
-
-    // 🛡️ safety check
-    if ($request->matches && is_array($request->matches)) {
-
-        // insert new matches
-        foreach ($request->matches as $key => $match) {
-            $betSlip->predictions()->create([
-                'match' => $match,
-                'league' => $request->leagues[$key] ?? null,
-                'match_date' => $request->match_dates[$key] ?? null,
-                'match_time' => $request->match_times[$key] ?? null,
-                'prediction' => $request->predictions[$key] ?? null,
-                'odds' => $request->odds[$key] ?? null,
-            ]);
+            abort(404);
         }
     }
 
-    return redirect()
-        ->route('admin.manager.predictions.index')
-        ->with('success', 'Updated successfully');
-}
-        public function show($id)
+    public function update(Request $request, $id)
     {
-        $betSlip = BetSlip::with('predictions')->findOrFail($id);
+        try {
 
-        return view('admin.manager.predictions.show', compact('betSlip'));
+            $betSlip = BetSlip::findOrFail($id);
+
+            $betSlip->update([
+                'bet_code' => $request->bet_code,
+                'bookmaker' => $request->bookmaker,
+                'betting_link' => $request->betting_link,
+            ]);
+
+            $limit = setting('daily_prediction_limit');
+
+            $countToday = $betSlip->predictions()
+                ->whereDate('created_at', today())
+                ->count();
+
+            if ($countToday >= $limit) {
+
+                logActivity('error', 'UPDATE BLOCKED | limit reached | ' . $betSlip->bet_code);
+
+                return back()->with('error', 'Daily prediction limit reached for updates');
+            }
+
+            $betSlip->predictions()->delete();
+
+            if ($request->matches && is_array($request->matches)) {
+
+                foreach ($request->matches as $key => $match) {
+                    $betSlip->predictions()->create([
+                        'match' => $match,
+                        'league' => $request->leagues[$key] ?? null,
+                        'match_date' => $request->match_dates[$key] ?? null,
+                        'match_time' => $request->match_times[$key] ?? null,
+                        'prediction' => $request->predictions[$key] ?? null,
+                        'odds' => $request->odds[$key] ?? null,
+                    ]);
+                }
+            }
+
+            logActivity('edit_prediction', 'BetSlip updated: ' . $betSlip->bet_code);
+
+            return redirect()
+                ->route('admin.manager.predictions.index')
+                ->with('success', 'Updated successfully');
+
+        } catch (\Throwable $e) {
+
+            logActivity('error', 'UPDATE ERROR | BetSlip ID: ' . $id . ' | ' . $e->getMessage());
+
+            return back()->with('error', 'Update failed. Try again later.');
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $betSlip = BetSlip::with('predictions')->findOrFail($id);
+
+            return view('admin.manager.predictions.show', compact('betSlip'));
+
+        } catch (\Throwable $e) {
+
+            logActivity('error', 'SHOW ERROR | BetSlip ID: ' . $id . ' | ' . $e->getMessage());
+
+            abort(404);
+        }
     }
 
     public function destroy($id)
-{
-    DB::beginTransaction();
+    {
+        DB::beginTransaction();
 
-    try {
+        try {
 
-        $betSlip = BetSlip::findOrFail($id);
+            $betSlip = BetSlip::findOrFail($id);
 
-        // delete all related predictions first
-        $betSlip->predictions()->delete();
+            $betSlip->predictions()->delete();
+            $betSlip->delete();
 
-        // delete bet slip
-        $betSlip->delete();
+            DB::commit();
 
-        DB::commit();
+            logActivity('delete_prediction', 'BetSlip deleted: ' . $betSlip->bet_code);
 
-        return redirect()
-            ->route('admin.manager.predictions.index')
-            ->with('success', 'Mkeka umefutwa kikamilifu!');
+            return redirect()
+                ->route('admin.manager.predictions.index')
+                ->with('success', 'Mkeka umefutwa kikamilifu!');
 
-    } catch (\Throwable $e) {
+        } catch (\Throwable $e) {
 
-        DB::rollBack();
+            DB::rollBack();
 
-        return back()
-            ->with('error', 'Kuna tatizo: ' . $e->getMessage());
+            logActivity('error', 'DELETE ERROR | BetSlip ID: ' . $id . ' | ' . $e->getMessage());
+
+            return back()->with('error', 'Kuna tatizo: ' . $e->getMessage());
+        }
     }
-}
 }
