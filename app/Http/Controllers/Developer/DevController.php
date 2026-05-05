@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Artisan;
 
 class DevController extends Controller
 {
@@ -23,10 +24,40 @@ class DevController extends Controller
         return view('admin.dev.settings');
     }
 
-    public function devtools()
+        public function tools()
     {
-        return view('admin.dev.devtools');
+        return view('admin.dev.tools');
     }
+
+    public function clearCache()
+    {
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('view:clear');
+        Artisan::call('route:clear');
+
+        return back()->with('success', 'Cache cleared successfully');
+    }
+
+    public function optimize()
+    {
+        Artisan::call('config:cache');
+        Artisan::call('route:cache');
+        Artisan::call('view:cache');
+
+        return back()->with('success', 'App optimized successfully');
+    }
+
+    public function debug()
+    {
+        return response()->json([
+            'app_name' => config('app.name'),
+            'environment' => app()->environment(),
+            'php_version' => phpversion(),
+            'laravel_version' => app()->version(),
+        ]);
+    }
+
 
     public function logic()
     {

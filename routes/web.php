@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request;
+
 use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\Frontend\HomeController;
@@ -9,6 +13,7 @@ use App\Http\Controllers\Frontend\PredictionsController;
 use App\Http\Controllers\Frontend\PremiumController;
 use App\Http\Controllers\Frontend\ContactController;
 
+use App\Http\Controllers\Dev\MonitoringController;
 
 use App\Http\Controllers\Manager\DashboardController;
 use App\Http\Controllers\Manager\HomeController as ManagerHomeController;
@@ -18,14 +23,16 @@ use App\Http\Controllers\Manager\PredictionsController as ManagerPredictionsCont
 use App\Http\Controllers\Manager\UsersController as ManagerUsersController;
 use App\Http\Controllers\Manager\MessagesController as ManagerMessagesController;
 
+use App\Models\User;
+use App\Models\Setting;
+
 /*
 |--------------------------------------------------------------------------
 | FRONTEND ROUTES
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [HomeController::class, 'index'])
-    ->name('frontend.home');
+Route::get('/', [HomeController::class, 'index'])->name('frontend.home');
 
 Route::get('/predictions', [PredictionsController::class, 'predictions'])
     ->name('frontend.predictions');
@@ -33,10 +40,12 @@ Route::get('/predictions', [PredictionsController::class, 'predictions'])
 Route::get('/premium', [PremiumController::class, 'premium'])
     ->name('frontend.premium');
 
-Route::get('/about', [AboutController::class, 'index'])->name('frontend.about');
+Route::get('/about', [AboutController::class, 'index'])
+    ->name('frontend.about');
 
 Route::get('/contact', [ContactController::class, 'contact'])
     ->name('frontend.contact');
+
 Route::post('/contact', [ContactController::class, 'store'])
     ->name('frontend.contact.store');
 
@@ -48,17 +57,6 @@ Route::post('/contact', [ContactController::class, 'store'])
 */
 
 require __DIR__.'/auth.php';
-
-
-/*
-|--------------------------------------------------------------------------
-| DASHBOARD (DEFAULT LARAVEL)
-|--------------------------------------------------------------------------
-*/
-
-// Route::get('/dashboard', function () {
-//     return redirect()->route('frontend.home');
-// })->middleware(['auth', 'verified']);
 
 
 /*
@@ -82,70 +80,146 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN ROUTES (ROLE BASED)
+| ADMIN - CO-OPERATIONAL MANAGER
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:co_operational_manager'])
 ->prefix('admin/manager')
 ->name('admin.manager.')
 ->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])
-    ->name('dashboard');
+        ->name('dashboard');
 
-    // HOME
     Route::resource('home', ManagerHomeController::class);
-
-    // ABOUT
     Route::resource('about', ManagerAboutController::class);
-
-    // PREMIUM
     Route::resource('premium', ManagerPremiumController::class);
-
-    // PREDICTIONS
     Route::resource('predictions', ManagerPredictionsController::class);
-
-    // USERS
     Route::resource('users', ManagerUsersController::class);
-
-    // MESSAGES
     Route::resource('messages', ManagerMessagesController::class);
+
 });
 
 
-
-
+/*
+|--------------------------------------------------------------------------
+| ADMIN - LEAD DEVELOPER
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware(['auth', 'role:co_lead_developer'])
-    ->prefix('admin/dev')
-    ->name('admin.dev.')
-    ->group(function () {
+->prefix('admin/dev')
+->name('admin.dev.')
+->group(function () {
 
-        Route::get('/', function () {
-            return view('admin.dev.dashboard');
-        })->name('index');
+    /*
+    |--------------------------
+    | DASHBOARD (REAL DATA)
+    |--------------------------
+    */
+    Route::get('/', function () {
 
-        Route::get('/logs', function () {
-            $logs = \App\Models\ActivityLog::latest()->paginate(20);
-            return view('admin.dev.logs', compact('logs'));
-        })->name('logs');
+        $users = User::count();
 
-        Route::get('/settings', function () {
-            return view('admin.dev.settings');
-        })->name('settings');
+        $predictionsEnabled = Setting::where('key', 'predictions_enabled')->value('value');
+        $premiumEnabled = Setting::where('key', 'premium_enabled')->value('value');
 
-        // ✅ ADDED: POST route for settings update
-        Route::post('/settings', function (\Illuminate\Http\Request $request) {
+        return view('admin.dev.dashboard', compact(
+            'users',
+            'predictionsEnabled',
+            'premiumEnabled'
+        ));
 
-            foreach ($request->except('_token') as $key => $value) {
-                \App\Models\Setting::updateOrCreate(
-                    ['key' => $key],
-                    ['value' => $value]
-                );
-            }
+    })->name('index');
 
-            return back()->with('success', 'Settings updated successfully');
 
-        })->name('settings.update');
+    /*
+    |--------------------------
+    | LOGS
+    |--------------------------
+    */
+    Route::get('/logs', function () {
+        $logs = \App\Models\ActivityLog::latest()->paginate(20);
+        return view('admin.dev.logs', compact('logs'));
+    })->name('logs');
 
-    });
+
+    /*
+    |--------------------------
+    | SETTINGS
+    |--------------------------
+    */
+    Route::get('/settings', function () {
+        return view('admin.dev.settings');
+    })->name('settings');
+
+
+    Route::post('/settings', function (Request $request) {
+
+        foreach ($request->except('_token') as $key => $value) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value]
+            );
+        }
+
+        return back()->with('success', 'Settings updated successfully');
+
+    })->name('settings.update');
+
+
+    /*
+    |--------------------------
+    | SYSTEM MONITORING
+    |--------------------------
+    */
+    Route::get('/monitoring', [MonitoringController::class, 'index'])
+        ->name('monitoring');
+
+
+    /*
+    |--------------------------
+    | DEV TOOLS
+    |--------------------------
+    */
+    Route::get('/tools', function () {
+        return view('admin.dev.tools');
+    })->name('tools');
+
+
+    Route::post('/tools/clear', function () {
+
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('view:clear');
+        Artisan::call('route:clear');
+
+        return back()->with('success', 'Cache cleared successfully');
+
+    })->name('tools.clear');
+
+
+    Route::post('/tools/optimize', function () {
+
+        Artisan::call('config:cache');
+        Artisan::call('route:cache');
+        Artisan::call('view:cache');
+
+        return back()->with('success', 'App optimized successfully');
+
+    })->name('tools.optimize');
+
+
+    Route::get('/tools/debug', function () {
+
+        return response()->json([
+            'app_name' => config('app.name'),
+            'environment' => app()->environment(),
+            'php_version' => phpversion(),
+            'laravel_version' => app()->version(),
+        ]);
+
+    })->name('tools.debug');
+
+});
