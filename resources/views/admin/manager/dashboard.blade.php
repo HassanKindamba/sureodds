@@ -126,7 +126,7 @@
         <!-- USERS -->
         <div class="card">
             <div class="title">Users</div>
-            <div class="value">0</div>
+            <div class="value">{{$users}}</div>
             <div class="sub">Registered users</div>
         </div>
 

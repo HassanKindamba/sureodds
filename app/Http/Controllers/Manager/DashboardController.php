@@ -1,22 +1,20 @@
 <?php
 
- namespace App\Http\Controllers\Manager;
+namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
-use App\Models\BetSlip; // 👈 add hii
+use App\Models\BetSlip;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $messages = Contact::count();
-
-        $predictions = BetSlip::count(); // 👈 ADD HII (mikeka/predictions)
-
-        return view('admin.manager.dashboard', compact(
-            'messages',
-            'predictions'
-        ));
+        return view('admin.manager.dashboard', [
+            'users' => User::count(),
+            'messages' => Contact::count(),
+            'predictions' => BetSlip::count(),
+        ]);
     }
 }
