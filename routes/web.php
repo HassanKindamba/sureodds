@@ -33,64 +33,47 @@ use App\Models\Setting;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('frontend.home');
-
-Route::get('/predictions', [PredictionsController::class, 'predictions'])
-    ->name('frontend.predictions');
-
-Route::get('/premium', [PremiumController::class, 'premium'])
-    ->name('frontend.premium');
-
-Route::get('/about', [AboutController::class, 'index'])
-    ->name('frontend.about');
-
-Route::get('/contact', [ContactController::class, 'contact'])
-    ->name('frontend.contact');
-
-Route::post('/contact', [ContactController::class, 'store'])
-    ->name('frontend.contact.store');
+Route::get('/predictions', [PredictionsController::class, 'predictions'])->name('frontend.predictions');
+Route::get('/premium', [PremiumController::class, 'premium'])->name('frontend.premium');
+Route::get('/about', [AboutController::class, 'index'])->name('frontend.about');
+Route::get('/contact', [ContactController::class, 'contact'])->name('frontend.contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('frontend.contact.store');
 
 
 /*
 |--------------------------------------------------------------------------
-| AUTH ROUTES
+| AUTH
 |--------------------------------------------------------------------------
 */
-
 require __DIR__.'/auth.php';
 
 
 /*
 |--------------------------------------------------------------------------
-| PROFILE ROUTES
+| PROFILE
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
-
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
-
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN - CO-OPERATIONAL MANAGER
+| CO-OPERATIONAL MANAGER
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:co_operational_manager'])
+Route::middleware(['auth', 'role:manager'])
 ->prefix('admin/manager')
 ->name('admin.manager.')
 ->group(function () {
 
-    Route::get('/', [DashboardController::class, 'index'])
-        ->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('home', ManagerHomeController::class);
     Route::resource('about', ManagerAboutController::class);
@@ -104,7 +87,7 @@ Route::middleware(['auth', 'role:co_operational_manager'])
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN - LEAD DEVELOPER
+| LEAD DEVELOPER
 |--------------------------------------------------------------------------
 */
 
@@ -115,21 +98,16 @@ Route::middleware(['auth', 'role:co_lead_developer'])
 
     /*
     |--------------------------
-    | DASHBOARD (REAL DATA)
+    | DASHBOARD
     |--------------------------
     */
     Route::get('/', function () {
 
-        $users = User::count();
-
-        $predictionsEnabled = Setting::where('key', 'predictions_enabled')->value('value');
-        $premiumEnabled = Setting::where('key', 'premium_enabled')->value('value');
-
-        return view('admin.dev.dashboard', compact(
-            'users',
-            'predictionsEnabled',
-            'premiumEnabled'
-        ));
+        return view('admin.dev.dashboard', [
+            'users' => User::count(),
+            'predictionsEnabled' => Setting::where('key','predictions_enabled')->value('value'),
+            'premiumEnabled' => Setting::where('key','premium_enabled')->value('value'),
+        ]);
 
     })->name('index');
 
@@ -154,7 +132,6 @@ Route::middleware(['auth', 'role:co_lead_developer'])
         return view('admin.dev.settings');
     })->name('settings');
 
-
     Route::post('/settings', function (Request $request) {
 
         foreach ($request->except('_token') as $key => $value) {
@@ -171,11 +148,33 @@ Route::middleware(['auth', 'role:co_lead_developer'])
 
     /*
     |--------------------------
+    | LOGIC CONTROL
+    |--------------------------
+    */
+    Route::get('/logic', function () {
+        return view('admin.dev.logic');
+    })->name('logic');
+
+    Route::post('/logic', function (Request $request) {
+
+        foreach ($request->except('_token') as $key => $value) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value]
+            );
+        }
+
+        return back()->with('success', 'Logic updated successfully');
+
+    })->name('logic.update');
+
+
+    /*
+    |--------------------------
     | SYSTEM MONITORING
     |--------------------------
     */
-    Route::get('/monitoring', [MonitoringController::class, 'index'])
-        ->name('monitoring');
+    Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring');
 
 
     /*
@@ -186,7 +185,6 @@ Route::middleware(['auth', 'role:co_lead_developer'])
     Route::get('/tools', function () {
         return view('admin.dev.tools');
     })->name('tools');
-
 
     Route::post('/tools/clear', function () {
 
@@ -199,7 +197,6 @@ Route::middleware(['auth', 'role:co_lead_developer'])
 
     })->name('tools.clear');
 
-
     Route::post('/tools/optimize', function () {
 
         Artisan::call('config:cache');
@@ -209,7 +206,6 @@ Route::middleware(['auth', 'role:co_lead_developer'])
         return back()->with('success', 'App optimized successfully');
 
     })->name('tools.optimize');
-
 
     Route::get('/tools/debug', function () {
 

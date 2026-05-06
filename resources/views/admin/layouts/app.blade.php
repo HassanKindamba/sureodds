@@ -128,8 +128,7 @@
         <h2>SureOdds</h2>
 
        {{-- MANAGER MENU --}}
-@if(auth()->user()?->role === 'co_operational_manager')
-
+@if(auth()->user()?->role === 'manager')
     <a href="{{ route('admin.manager.dashboard') }}"
        class="{{ request()->routeIs('admin.manager.dashboard') ? 'active' : '' }}">
        Dashboard
@@ -181,7 +180,7 @@
     <a href="/admin/dev/settings">Settings</a>
 
     {{-- ADDED ONLY --}}
-    <a href="/admin/dev/logic">Logic Control</a>
+    <a href="{{ route('admin.dev.logic') }}">Logic Control</a>
     <a href="/admin/dev/roles">Roles</a>
     <a href="{{ route('admin.dev.monitoring') }}">System Monitoring</a>
 
