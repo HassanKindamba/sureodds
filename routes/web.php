@@ -171,6 +171,39 @@ Route::middleware(['auth', 'role:co_lead_developer'])
 
     /*
     |--------------------------
+    | ROLES DISPLAY
+    |--------------------------
+    */
+    Route::get('/roles', function () {
+
+    $roles = [
+
+        [
+            'name' => 'User',
+            'access' => 'Basic',
+            'permissions' => 'View predictions and frontend content'
+        ],
+
+        [
+            'name' => 'Co-operational Manager',
+            'access' => 'Medium',
+            'permissions' => 'Manage predictions, premium, users, home, about and messages'
+        ],
+
+        [
+            'name' => 'Co-lead Developer',
+            'access' => 'High',
+            'permissions' => 'Manage logs, settings, monitoring, logic control and developer tools'
+        ],
+
+    ];
+
+    return view('admin.dev.roles', compact('roles'));
+
+})->name('roles');
+
+    /*
+    |--------------------------
     | SYSTEM MONITORING
     |--------------------------
     */

@@ -181,7 +181,7 @@
 
     {{-- ADDED ONLY --}}
     <a href="{{ route('admin.dev.logic') }}">Logic Control</a>
-    <a href="/admin/dev/roles">Roles</a>
+    <a href="{{ route('admin.dev.roles') }}">Roles</a>
     <a href="{{ route('admin.dev.monitoring') }}">System Monitoring</a>
 
     {{-- DEV TOOLS LINK (hapa) --}}
