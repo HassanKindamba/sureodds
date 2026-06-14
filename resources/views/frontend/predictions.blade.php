@@ -14,54 +14,79 @@
 
   <div class="mikeka-grid" id="mkekaGrid">
 
-    @forelse($betSlips as $slip)
+   @forelse($betSlips as $slip)
 
-      <div class="mkk-card" data-league="all">
+  <div class="mkk-card" data-league="all">
 
-        {{-- MATCHES --}}
+    {{-- CHECK IF PREMIUM SLIP --}}
+    @if($slip->is_premium)
+
+        @auth
+            @if(auth()->check() && auth()->user()->subscriptions()->where('status','active')->exists())
+
+                {{-- PREMIUM USERS SEE FULL CONTENT --}}
+                @foreach($slip->predictions as $match)
+                    <div style="margin-bottom:8px; font-size:14px; padding:5px 0;">
+                        <b>{{ $match->match }}</b><br>
+                        <span style="color:#666;">
+                            {{ $match->prediction }} | Odd: {{ $match->odds }}
+                        </span>
+                    </div>
+                @endforeach
+
+            @else
+
+              <div style="padding:15px; background:#ffecec; color:#a00;">
+                  🔒 Hii ni Premium Prediction  
+                  <br>
+                  @auth
+                      Upgrade kupata full mkeka
+                  @else
+                      Login au Upgrade kupata full mkeka
+                  @endauth
+              </div>
+
+            @endif
+        @endauth
+
+    @else
+
+        {{-- FREE CONTENT --}}
         @foreach($slip->predictions as $match)
-
-          <div style="margin-bottom:8px; font-size:14px; padding:5px 0;">
-
-            <b>{{ $match->match }}</b><br>
-
-            <span style="color:#666;">
-              {{ $match->prediction }} | Odd: {{ $match->odds }}
-            </span>
-
-          </div>
-
+            <div style="margin-bottom:8px; font-size:14px; padding:5px 0;">
+                <b>{{ $match->match }}</b><br>
+                <span style="color:#666;">
+                    {{ $match->prediction }} | Odd: {{ $match->odds }}
+                </span>
+            </div>
         @endforeach
 
-        <hr class="mkk-divider">
+    @endif
 
-        {{-- CODE BLOCK --}}
-        <div class="code-block">
+    <hr class="mkk-divider">
 
-          <div class="code-left">
+    {{-- CODE BLOCK --}}
+    <div class="code-block">
+
+        <div class="code-left">
             <span class="code-val">{{ $slip->bet_code }}</span>
 
             <span class="code-desc">
-              Nakili code → nenda Betting site → Enter Code
+                Nakili code → nenda Betting site → Enter Code
             </span>
-          </div>
-
-          <!-- <button class="copy-btn"
-            onclick="copyCode(this,'{{ $slip->bet_code }}')">
-            📋 Nakili Code
-          </button> -->
-
         </div>
 
-      </div>
+    </div>
 
-    @empty
+  </div>
 
-      <p style="text-align:center; padding:20px;">
-        Hakuna predictions zilizopo kwa sasa.
-      </p>
+@empty
 
-    @endforelse
+  <p style="text-align:center; padding:20px;">
+    Hakuna predictions zilizopo kwa sasa.
+  </p>
+
+@endforelse
 
   </div>
 
