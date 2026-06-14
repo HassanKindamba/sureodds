@@ -2,42 +2,62 @@
 
 @section('content')
 
-<h2>⚙️ Premium Features Control</h2>
+<div style="max-width:700px; margin:auto; color:#111;">
 
-<ul style="list-style:none; padding:0;">
+    <h2 style="margin-bottom:20px; color:#fff;">
+        ⚙️ Premium Features Control
+    </h2>
 
-    <li>
-        <label>
-            <input type="checkbox" checked> Advanced Odds Prediction
-        </label>
-    </li>
+    <form method="POST" action="#">
+        @csrf
 
-    <li>
-        <label>
-            <input type="checkbox" checked> Early Odds Access
-        </label>
-    </li>
+        <div style="
+            background:#fff;
+            padding:20px;
+            border-radius:10px;
+            box-shadow:0 0 10px rgba(0,0,0,0.08);
+        ">
 
-    <li>
-        <label>
-            <input type="checkbox"> VIP Only Matches
-        </label>
-    </li>
+            @foreach($features as $feature)
 
-    <li>
-        <label>
-            <input type="checkbox" checked> High Accuracy Tips
-        </label>
-    </li>
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    padding:12px 0;
+                    border-bottom:1px solid #eee;
+                    color:#111;
+                ">
 
-    <li>
-        <label>
-            <input type="checkbox"> No Ads Experience
-        </label>
-    </li>
+                    <label style="font-size:15px; cursor:pointer; color:#111;">
+                        <input type="checkbox"
+                               name="features[{{ $feature->id }}]"
+                               {{ $feature->enabled ? 'checked' : '' }}
+                               style="margin-right:10px;">
 
-</ul>
+                        {{ $feature->name }}
+                    </label>
 
-<button style="margin-top:20px;">Save Changes</button>
+                </div>
+
+            @endforeach
+
+        </div>
+
+        <button type="submit" style="
+            margin-top:20px;
+            padding:10px 20px;
+            background:#111;
+            color:#fff;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+        ">
+            Save Changes
+        </button>
+
+    </form>
+
+</div>
 
 @endsection
