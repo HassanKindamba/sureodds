@@ -3,57 +3,100 @@
 @section('title', 'Premium')
 
 @section('content')
+
 {{-- PREMIUM --}}
 <section id="premium">
   <div class="section-header">
     <h2>CHAGUA MPANGO <span>WAKO</span></h2>
-    <p>Anza bure au pata upatikanaji kamili wa mikeka yote ya VIP na codes</p>
+    <p>Anza bure au pata upatikanaji kamili wa VIP na mikeka ya premium</p>
   </div>
 
   <div class="plans-grid">
+
+    {{-- FREE PLAN (STATIC) --}}
     <div class="plan-card">
       <div class="plan-name">Bure</div>
       <div class="plan-price"><sup>TSh</sup>0</div>
       <div class="plan-period">milele bure</div>
+
       <ul class="plan-features">
         <li><span class="chk">✓</span> Mikeka 5 kwa siku</li>
         <li><span class="chk">✓</span> Matokeo ya mechi</li>
         <li><span class="chk">✓</span> Uchambuzi wa msingi</li>
-        <li><span class="xmark">✗</span> <span style="opacity:0.4">Mikeka ya VIP</span></li>
-        <li><span class="xmark">✗</span> <span style="opacity:0.4">Codes za mikeka</span></li>
-        <li><span class="xmark">✗</span> <span style="opacity:0.4">Kikundi cha WhatsApp</span></li>
+        <li><span class="xmark">✗</span> VIP features</li>
       </ul>
-      <button class="plan-btn btn-outline" onclick="openModal('register')">Anza Bure</button>
+
+      <button class="plan-btn btn-outline" onclick="openModal('register')">
+        Anza Bure
+      </button>
     </div>
-    <div class="plan-card featured">
-      <div class="featured-badge">🔥 Maarufu Zaidi</div>
-      <div class="plan-name">VIP Weekly</div>
-      <div class="plan-price"><sup>TSh</sup>2,000</div>
-      <div class="plan-period">kwa wiki</div>
+
+
+    {{-- PAID PLANS --}}
+    @foreach($plans as $plan)
+
+    <div class="plan-card {{ $plan->name == 'VIP Weekly' ? 'featured' : '' }}">
+
+      @if($plan->name == 'VIP Weekly')
+        <div class="featured-badge">🔥 Maarufu Zaidi</div>
+      @endif
+
+      <div class="plan-name">{{ $plan->name }}</div>
+
+      <div class="plan-price">
+        <sup>TSh</sup>{{ number_format($plan->price) }}
+      </div>
+
+      <div class="plan-period">
+        kwa {{ $plan->duration_days }} siku
+      </div>
+
       <ul class="plan-features">
-        <li><span class="chk">✓</span> Mikeka yote bila kikomo</li>
-        <li><span class="chk">✓</span> Codes za mikeka zote</li>
-        <li><span class="chk">✓</span> Uchambuzi wa kina</li>
-        <li><span class="chk">✓</span> Accumulator tips</li>
-        <li><span class="chk">✓</span> Kikundi cha WhatsApp VIP</li>
-        <li><span class="chk">✓</span> Msaada 24/7</li>
+        <li><span class="chk">✓</span> VIP Mikeka</li>
+        <li><span class="chk">✓</span> High accuracy tips</li>
+        <li><span class="chk">✓</span> Fast updates</li>
+        <li><span class="chk">✓</span> Premium access</li>
       </ul>
-      <button class="plan-btn btn-gold" onclick="openModal('register')">Jiunge VIP</button>
+
+      {{-- ========================= --}}
+      {{-- 💳 MULTI PAYMENT FORM --}}
+      {{-- ========================= --}}
+      <form method="POST" action="{{ route('payments.pay') }}">
+        @csrf
+
+        <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+
+        {{-- PAYMENT METHOD --}}
+        <select name="method" required
+                style="width:100%; padding:8px; margin-bottom:10px;">
+            <option value="">Chagua Njia ya Malipo</option>
+            <option value="mpesa">M-Pesa</option>
+            <option value="airtel">Airtel Money</option>
+            <option value="tigo">Tigo Pesa</option>
+            <option value="halopesa">HaloPesa</option>
+        </select>
+
+        {{-- PHONE INPUT --}}
+        <input type="text"
+               name="phone"
+               placeholder="Ingiza namba (2557xxxxxxx)"
+               required
+               style="width:100%; padding:8px; margin-bottom:10px;">
+
+        {{-- AMOUNT (AUTO LOCKED) --}}
+        <input type="hidden" name="amount" value="{{ $plan->price }}">
+
+        <button type="submit"
+                class="plan-btn btn-gold">
+            Lipa Sasa
+        </button>
+      </form>
+
     </div>
-    <div class="plan-card">
-      <div class="plan-name">VIP Annual</div>
-      <div class="plan-price"><sup>TSh</sup>120K</div>
-      <div class="plan-period">kwa mwaka — okoa 33%</div>
-      <ul class="plan-features">
-        <li><span class="chk">✓</span> Kila kitu cha VIP Weekly</li>
-        <li><span class="chk">✓</span> Ripoti za kila wiki</li>
-        <li><span class="chk">✓</span> Session ya 1-on-1</li>
-        <li><span class="chk">✓</span> Kipaumbele cha msaada</li>
-        <li><span class="chk">✓</span> Uchambuzi wa kina zaidi</li>
-        <li><span class="chk">✓</span> Bei ya maisha yote</li>
-      </ul>
-      <button class="plan-btn btn-outline" onclick="openModal('register')">Chagua Annual</button>
-    </div>
+
+    @endforeach
+
   </div>
 </section>
+
 @endsection
