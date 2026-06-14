@@ -24,7 +24,7 @@
             font-size:14px;
             text-align:center;
         ">
-            Tafadhali hakikisha taarifa zako ni sahihi
+            Tafadhali hakikisha taarifa zako ni sahihi,akikisha password yako ina hii format(uppercase,lowercase,character na number)
         </div>
     @endif
 
