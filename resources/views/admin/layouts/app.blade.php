@@ -169,7 +169,7 @@
 
 
 {{-- DEVELOPER MENU --}}
-@if(auth()->user()?->role === 'co_lead_developer')
+@if(auth()->user()?->role === 'developer')
 
     <a href="{{ route('admin.dev.index') }}"
     class="{{ request()->routeIs('admin.dev.*') ? 'active' : '' }}">
