@@ -26,9 +26,11 @@
         <li><span class="xmark">✗</span> VIP features</li>
       </ul>
 
-      <button class="plan-btn btn-outline" onclick="openModal('register')">
+    <a href="{{ route('register') }}"
+      class="plan-btn"
+      style="background:#facc15; color:#000; border:1px solid #b7a769; text-decoration:none;">
         Anza Bure
-      </button>
+    </a>
     </div>
 
 
