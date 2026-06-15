@@ -308,7 +308,7 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:co_lead_developer'])
+Route::middleware(['auth', 'role:developer'])
 ->prefix('admin/dev')
 ->name('admin.dev.')
 ->group(function () {
