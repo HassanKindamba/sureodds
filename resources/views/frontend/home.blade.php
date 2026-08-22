@@ -80,41 +80,174 @@
 
             <div class="mkk-card" data-league="all">
 
-                {{-- MATCHES --}}
-                @foreach($slip->predictions as $match)
-                    <div style="margin-bottom:8px; font-size:14px; padding:5px 0;">
-                        <b>{{ $match->match }}</b><br>
-                        <span style="color:#666;">
-                            {{ $match->prediction }} | Odd: {{ $match->odds }}
-                        </span>
-                    </div>
-                @endforeach
+                {{-- TABLE --}}
+                <div class="prediction-table-wrapper">
 
+                    <table class="prediction-table">
+
+                        <thead>
+                            <tr>
+                                <th>Match</th>
+                                <th>Prediction</th>
+                                <th>Odds</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach($slip->predictions as $match)
+
+                                <tr>
+
+                                    {{-- MATCH --}}
+                                    <td>
+                                        <strong>{{ $match->match }}</strong>
+                                    </td>
+
+                                    {{-- PREDICTION --}}
+                                    <td>
+                                        {{ $match->prediction }}
+                                    </td>
+
+                                    {{-- ODDS --}}
+                                    <td>
+                                        <span class="odds">
+                                            {{ $match->odds }}
+                                        </span>
+                                    </td>
+
+                                    {{-- STATUS --}}
+                                    <td>
+
+                                        @if($match->status === 'won')
+
+                                            <span class="status-badge status-won">
+                                                ✓ WON
+                                            </span>
+
+                                        @elseif($match->status === 'lost')
+
+                                            <span class="status-badge status-lost">
+                                                ✕ LOST
+                                            </span>
+
+                                        @else
+
+                                            <span class="status-badge status-pending">
+                                                ⏳ PENDING
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {{-- DIVIDER --}}
                 <hr class="mkk-divider">
 
-                {{-- CODE --}}
+                {{-- BET CODE --}}
                 <div class="code-block">
 
                     <div class="code-left">
-                        <span class="code-val">{{ $slip->bet_code }}</span>
+
+                        <span class="code-label">
+                            BET CODE
+                        </span>
+
+                        <span
+                            class="code-val"
+                            id="bet-code-{{ $slip->id }}"
+                        >
+                            {{ $slip->bet_code }}
+                        </span>
 
                         <span class="code-desc">
                             Nakili code → nenda Betting site → Enter Code
                         </span>
+
                     </div>
+
+                    {{-- COPY BUTTON --}}
+                    <button
+                        type="button"
+                        class="copy-code-btn"
+                        onclick="navigator.clipboard.writeText(document.getElementById('bet-code-{{ $slip->id }}').textContent.trim()).then(() => { this.innerHTML='✓ COPIED'; setTimeout(() => { this.innerHTML='📋 COPY CODE'; }, 2000); })"
+                    >
+                        📋 COPY CODE
+                    </button>
 
                 </div>
 
             </div>
 
         @empty
+
             <p style="text-align:center; padding:20px;">
                 Hakuna predictions zilizopo kwa sasa.
             </p>
+
         @endforelse
 
     </div>
+
 </section>
+
+
+{{-- ================= STATUS COLORS ================= --}}
+<style>
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 5px 10px;
+        border-radius: 6px;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+
+    /* ================= WON ================= */
+
+    .status-won {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #86efac;
+    }
+
+
+    /* ================= LOST ================= */
+
+    .status-lost {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+    }
+
+
+    /* ================= PENDING ================= */
+
+    .status-pending {
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fcd34d;
+    }
+
+</style>
 
 
 {{-- ================= BETTING PLATFORMS ================= --}}
