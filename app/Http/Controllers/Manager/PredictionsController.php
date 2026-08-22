@@ -44,6 +44,7 @@ class PredictionsController extends Controller
                     'match_time' => $request->match_times[$key] ?? null,
                     'prediction' => $request->predictions[$key] ?? null,
                     'odds' => $request->odds[$key] ?? null,
+                    'status' => $request->statuses[$key] ?? 'pending',
                 ]);
             }
 
@@ -131,6 +132,7 @@ class PredictionsController extends Controller
                         'match_time' => $request->match_times[$key] ?? null,
                         'prediction' => $request->predictions[$key] ?? null,
                         'odds' => $request->odds[$key] ?? null,
+                        'status' => $request->statuses[$key] ?? 'pending',
                     ]);
                 }
             }
@@ -163,6 +165,38 @@ class PredictionsController extends Controller
             abort(404);
         }
     }
+
+    public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:pending,won,lost',
+    ]);
+
+    try {
+        $prediction = Prediction::findOrFail($id);
+
+        $prediction->update([
+            'status' => $request->status,
+        ]);
+
+        return back()->with(
+            'success',
+            'Prediction status updated successfully!'
+        );
+
+    } catch (\Throwable $e) {
+
+        \Log::error('Status Update Error', [
+            'prediction_id' => $id,
+            'message' => $e->getMessage(),
+        ]);
+
+        return back()->with(
+            'error',
+            'Failed to update prediction status.'
+        );
+    }
+}
 
     public function destroy($id)
     {
