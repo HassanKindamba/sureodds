@@ -14,6 +14,11 @@ class Prediction extends Model
         'match_time',
         'prediction',
         'odds',
+        'status',
+    ];
+
+    protected $attributes = [
+        'status' => 'pending',
     ];
 
     // 👇 HII NDIO UNAWEKA HAPA
@@ -22,3 +27,4 @@ class Prediction extends Model
         return $this->belongsTo(BetSlip::class);
     }
 }
+
