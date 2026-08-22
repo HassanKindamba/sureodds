@@ -76,67 +76,184 @@
         display:inline-block;
     }
 
-    .btn-edit{ background:#f59e0b; }
-    .btn-back{ background:#6b7280; }
+    .btn-edit{
+        background:#f59e0b;
+    }
 
-    .btn:hover{ opacity:0.9; }
+    .btn-back{
+        background:#6b7280;
+    }
+
+    .btn:hover{
+        opacity:0.9;
+    }
+
+    /* ================= STATUS ================= */
+
+    .status-badge{
+        display:inline-block;
+        padding:6px 12px;
+        border-radius:20px;
+        font-size:13px;
+        font-weight:700;
+        text-transform:uppercase;
+    }
+
+    .status-pending{
+        background:#fef3c7;
+        color:#92400e;
+    }
+
+    .status-won{
+        background:#dcfce7;
+        color:#166534;
+    }
+
+    .status-lost{
+        background:#fee2e2;
+        color:#991b1b;
+    }
 </style>
 
 <div class="cms-wrapper">
 
     <div class="cms-card">
 
-        <div class="cms-title">MKAKA DETAILS</div>
+        <div class="cms-title">
+            MKAKA DETAILS
+        </div>
 
         <!-- MKAKA INFO -->
         <div class="cms-item">
             <div class="cms-label">Bet Code</div>
-            <div class="cms-value">{{ $betSlip->bet_code }}</div>
+            <div class="cms-value">
+                {{ $betSlip->bet_code }}
+            </div>
         </div>
 
         <div class="cms-item">
             <div class="cms-label">Bookmaker</div>
-            <div class="cms-value">{{ $betSlip->bookmaker }}</div>
+            <div class="cms-value">
+                {{ $betSlip->bookmaker }}
+            </div>
         </div>
 
         <div class="cms-item">
             <div class="cms-label">Total Matches</div>
-            <div class="cms-value">{{ $betSlip->predictions->count() }}</div>
+            <div class="cms-value">
+                {{ $betSlip->predictions->count() }}
+            </div>
         </div>
 
-        <h4 style="margin-top:20px;">Matches</h4>
+        <h4 style="margin-top:20px;">
+            Matches
+        </h4>
 
         @foreach($betSlip->predictions as $match)
 
             <div class="match-box">
 
                 <div class="cms-item">
-                    <div class="cms-label">Match</div>
-                    <div class="cms-value">{{ $match->match }}</div>
+
+                    <div class="cms-label">
+                        Match
+                    </div>
+
+                    <div class="cms-value">
+                        {{ $match->match }}
+                    </div>
+
                 </div>
 
-                <div class="cms-item">
-                    <div class="cms-label">League</div>
-                    <div class="cms-value">{{ $match->league }}</div>
-                </div>
 
                 <div class="cms-item">
-                    <div class="cms-label">Prediction</div>
-                    <div class="cms-value">{{ $match->prediction }}</div>
+
+                    <div class="cms-label">
+                        League
+                    </div>
+
+                    <div class="cms-value">
+                        {{ $match->league }}
+                    </div>
+
                 </div>
+
+
+                <div class="cms-item">
+
+                    <div class="cms-label">
+                        Prediction
+                    </div>
+
+                    <div class="cms-value">
+                        {{ $match->prediction }}
+                    </div>
+
+                </div>
+
 
                 <div class="cms-grid">
 
+                    <!-- ODDS -->
                     <div class="cms-item">
-                        <div class="cms-label">Odds</div>
-                        <div class="cms-value">{{ $match->odds }}</div>
+
+                        <div class="cms-label">
+                            Odds
+                        </div>
+
+                        <div class="cms-value">
+                            {{ $match->odds }}
+                        </div>
+
                     </div>
 
+
+                    <!-- DATE & TIME -->
                     <div class="cms-item">
-                        <div class="cms-label">Date & Time</div>
-                        <div class="cms-value">
-                            {{ $match->match_date }} {{ $match->match_time }}
+
+                        <div class="cms-label">
+                            Date & Time
                         </div>
+
+                        <div class="cms-value">
+                            {{ $match->match_date }}
+                            {{ $match->match_time }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS -->
+                <div class="cms-item">
+
+                    <div class="cms-label">
+                        Status
+                    </div>
+
+                    <div class="cms-value">
+
+                        @if($match->status === 'won')
+
+                            <span class="status-badge status-won">
+                                ✓ WON
+                            </span>
+
+                        @elseif($match->status === 'lost')
+
+                            <span class="status-badge status-lost">
+                                ✕ LOST
+                            </span>
+
+                        @else
+
+                            <span class="status-badge status-pending">
+                                ⏳ PENDING
+                            </span>
+
+                        @endif
+
                     </div>
 
                 </div>
@@ -145,14 +262,21 @@
 
         @endforeach
 
+
         <!-- ACTIONS -->
         <div class="cms-actions">
 
-            <a href="{{ route('admin.manager.predictions.edit', $betSlip->id) }}" class="btn btn-edit">
+            <a
+                href="{{ route('admin.manager.predictions.edit', $betSlip->id) }}"
+                class="btn btn-edit"
+            >
                 Edit
             </a>
 
-            <a href="{{ route('admin.manager.predictions.index') }}" class="btn btn-back">
+            <a
+                href="{{ route('admin.manager.predictions.index') }}"
+                class="btn btn-back"
+            >
                 Back
             </a>
 
