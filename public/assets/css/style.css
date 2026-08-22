@@ -591,3 +591,123 @@ html {
 
 
 
+
+/* ================= PREDICTION TABLE ================= */
+
+.prediction-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.prediction-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    color: var(--text);
+}
+
+/* TABLE HEADER */
+.prediction-table th {
+    text-align: left;
+    padding: 12px 14px;
+    background: rgba(240, 192, 64, 0.08);
+    color: var(--gold);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(240, 192, 64, 0.2);
+}
+
+/* TABLE BODY */
+.prediction-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: var(--text);
+    vertical-align: middle;
+}
+
+/* LAST ROW */
+.prediction-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* HOVER */
+.prediction-table tbody tr:hover {
+    background: rgba(240,192,64,0.04);
+}
+
+/* MATCH */
+.prediction-table td:first-child {
+    font-weight: 600;
+}
+
+/* PREDICTION */
+.prediction-table td:nth-child(2) {
+    color: #2ecc71;
+    font-weight: 600;
+}
+
+/* ODDS */
+.prediction-table .odds {
+    display: inline-block;
+    background: rgba(240,192,64,0.1);
+    color: var(--gold);
+    border: 1px solid rgba(240,192,64,0.2);
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+
+/* ================= COPY CODE ================= */
+
+.copy-code-btn {
+    background: rgba(240,192,64,0.1);
+    border: 1px solid rgba(240,192,64,0.3);
+    color: var(--gold);
+    padding: 9px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.copy-code-btn:hover {
+    background: rgba(240,192,64,0.2);
+    transform: translateY(-1px);
+}
+
+.copy-code-btn.copied {
+    background: rgba(39,174,96,0.15);
+    border-color: rgba(39,174,96,0.4);
+    color: #2ecc71;
+}
+
+
+/* ================= MOBILE TABLE ================= */
+
+@media (max-width: 600px) {
+
+    .prediction-table {
+        font-size: 12px;
+    }
+
+    .prediction-table th,
+    .prediction-table td {
+        padding: 9px 8px;
+    }
+
+    .mkk-card {
+        padding: 15px;
+    }
+
+    .code-block {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .copy-code-btn {
+        width: 100%;
+    }
+}
