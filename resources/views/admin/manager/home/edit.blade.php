@@ -24,17 +24,17 @@
 
         <h3>Stats</h3>
 
-        <input type="text" name="stat_accuracy_label" value="{{ $home->stat_accuracy_label }}">
-        <input type="text" name="stat_accuracy_value" value="{{ $home->stat_accuracy_value }}"><br><br>
+        <input type="text" name="stat_accuracy_label" placeholder="Accuracy Label">
+        <input type="text" name="stat_accuracy_value" placeholder="Accuracy Value"><br><br>
 
-        <input type="text" name="stat_members_label" value="{{ $home->stat_members_label }}">
-        <input type="text" name="stat_members_value" value="{{ $home->stat_members_value }}"><br><br>
+        <input type="text" name="stat_members_label" placeholder="Members Label">
+        <input type="text" name="stat_members_value" placeholder="Members Value"><br><br>
 
-        <input type="text" name="stat_picks_label" value="{{ $home->stat_picks_label }}">
-        <input type="text" name="stat_picks_value" value="{{ $home->stat_picks_value }}"><br><br>
+        <input type="text" name="stat_picks_label" placeholder="Picks Label">
+        <input type="text" name="stat_picks_value" placeholder="Picks Value"><br><br>
 
-        <input type="text" name="stat_experience_label" value="{{ $home->stat_experience_label }}">
-        <input type="text" name="stat_experience_value" value="{{ $home->stat_experience_value }}"><br><br>
+        <input type="text" name="stat_experience_label" placeholder="Experience Label">
+        <input type="text" name="stat_experience_value" placeholder="Experience Value"><br><br>
 
         <input type="file" name="image"><br><br>
 
