@@ -171,6 +171,10 @@ Route::middleware(['auth', 'role:manager'])
     */
 
     Route::resource('predictions', ManagerPredictionsController::class);
+    Route::patch(
+    'predictions/{id}/status',
+    [ManagerPredictionsController::class, 'updateStatus']
+    )->name('predictions.status');
     Route::resource('users', ManagerUsersController::class);
     Route::resource('messages', ManagerMessagesController::class);
 
