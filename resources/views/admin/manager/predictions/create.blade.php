@@ -21,13 +21,14 @@
         color:#111827;
     }
 
-    input, textarea{
+    input, textarea, select{
         width:100%;
         padding:10px;
         margin-bottom:10px;
         border:1px solid #e5e7eb;
         border-radius:8px;
         outline:none;
+        background:#fff;
     }
 
     textarea{
@@ -46,6 +47,14 @@
         border-radius:10px;
         padding:12px;
         margin-bottom:10px;
+    }
+
+    .status-label{
+        display:block;
+        font-size:13px;
+        font-weight:600;
+        color:#374151;
+        margin-bottom:5px;
     }
 
     .btn{
@@ -105,6 +114,17 @@
                 <input type="text" name="predictions[]" placeholder="Prediction">
                 <input type="text" name="odds[]" placeholder="Odds">
 
+                {{-- STATUS --}}
+                <label class="status-label">
+                    Status
+                </label>
+
+                <select name="statuses[]">
+                    <option value="pending" selected>PENDING</option>
+                    <option value="won">WON</option>
+                    <option value="lost">LOST</option>
+                </select>
+
             </div>
 
         </div>
@@ -137,6 +157,16 @@ function addMatch() {
         <input type="time" name="match_times[]">
         <input type="text" name="predictions[]" placeholder="Prediction">
         <input type="text" name="odds[]" placeholder="Odds">
+
+        <label class="status-label">
+            Status
+        </label>
+
+        <select name="statuses[]">
+            <option value="pending" selected>PENDING</option>
+            <option value="won">WON</option>
+            <option value="lost">LOST</option>
+        </select>
 
     </div>
     `;
