@@ -711,3 +711,64 @@ html {
         width: 100%;
     }
 }
+
+
+/* ================= NOTIFICATION BUTTON ================= */
+
+.notification-btn {
+    position: relative;
+    width: 38px;
+    height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--text);
+    text-decoration: none;
+
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+
+    font-size: 18px;
+
+    transition: all 0.2s ease;
+}
+
+.notification-btn:hover {
+    color: var(--gold);
+    background: rgba(240,192,64,0.08);
+    border-color: rgba(240,192,64,0.3);
+}
+
+
+/* NUMBER YA UNREAD */
+
+.notification-count {
+    position: absolute;
+
+    top: -6px;
+    right: -6px;
+
+    min-width: 18px;
+    height: 18px;
+
+    padding: 0 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--red);
+    color: #fff;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    border: 2px solid var(--dark);
+
+    line-height: 1;
+}
