@@ -13,6 +13,8 @@ use App\Http\Controllers\Frontend\PredictionsController;
 use App\Http\Controllers\Frontend\PremiumController as FrontendPremiumController;
 use App\Http\Controllers\Frontend\ContactController;
 
+use App\Http\Controllers\PredictionFeedbackController;
+
 use App\Http\Controllers\Dev\MonitoringController;
 
 use App\Http\Controllers\Manager\DashboardController;
@@ -22,8 +24,9 @@ use App\Http\Controllers\Manager\PremiumController as ManagerPremiumController;
 use App\Http\Controllers\Manager\PredictionsController as ManagerPredictionsController;
 use App\Http\Controllers\Manager\UsersController as ManagerUsersController;
 use App\Http\Controllers\Manager\MessagesController as ManagerMessagesController;
+use App\Http\Controllers\Manager\FeedbackController as ManagerFeedbackController;
 
-
+use App\Http\Controllers\Frontend\NotificationController;
 
 use App\Http\Controllers\PaymentController;
 
@@ -42,6 +45,10 @@ Route::get('/premium', [FrontendPremiumController::class, 'premium'])->name('fro
 Route::get('/about', [AboutController::class, 'index'])->name('frontend.about');
 Route::get('/contact', [ContactController::class, 'contact'])->name('frontend.contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('frontend.contact.store');
+
+Route::post('/predictions/{prediction}/feedback', [PredictionFeedbackController::class, 'store'])
+    ->name('predictions.feedback');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +71,16 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 });
+
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->name('frontend.notifications');
+
+Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])
+    ->name('frontend.notifications.read');
+
+Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])
+    ->name('frontend.notifications.read-all');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -177,6 +194,12 @@ Route::middleware(['auth', 'role:manager'])
     )->name('predictions.status');
     Route::resource('users', ManagerUsersController::class);
     Route::resource('messages', ManagerMessagesController::class);
+
+    Route::get('/feedback', [ManagerFeedbackController::class, 'index'])
+    ->name('feedback.index');
+
+    Route::delete('/feedback/{feedback}', [ManagerFeedbackController::class, 'destroy'])
+    ->name('feedback.destroy');
 
 });
 
