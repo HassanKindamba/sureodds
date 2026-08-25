@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -14,9 +13,25 @@ class BetSlip extends Model
         'betting_link',
     ];
 
-    // 👇 HII NDIO UNAWEKA HAPA
+    /*
+    |--------------------------------------------------------------------------
+    | Predictions
+    |--------------------------------------------------------------------------
+    */
+
     public function predictions()
     {
         return $this->hasMany(Prediction::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Feedback
+    |--------------------------------------------------------------------------
+    */
+
+    public function feedbacks()
+    {
+        return $this->hasMany(PredictionFeedback::class);
     }
 }
