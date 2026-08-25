@@ -7,6 +7,8 @@ use App\Models\BetSlip;
 use App\Models\Prediction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Notifications\NewPredictionNotification;
 
 class PredictionsController extends Controller
 {
@@ -48,7 +50,29 @@ class PredictionsController extends Controller
                 ]);
             }
 
-            DB::commit();
+              DB::commit();
+
+           /*
+        |--------------------------------------------------------------------------
+        | NOTIFY FRONTEND USERS
+        |--------------------------------------------------------------------------
+        */
+
+        $users = User::whereNotIn('role', ['developer', 'manager'])->get();
+
+        foreach ($users as $user) {
+
+            $user->notify(
+                new NewPredictionNotification(
+                    'New Prediction',
+                    'Prediction mpya imeongezwa. Angalia mikeka ya leo.',
+                    '/predictions',
+                    'prediction'
+                )
+            );
+
+        }
+
 
             logActivity('add_prediction', 'BetSlip created: ' . $betSlip->bet_code);
 
