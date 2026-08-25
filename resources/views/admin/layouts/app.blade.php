@@ -164,6 +164,11 @@
        Messages
     </a>
 
+    <a href="{{ route('admin.manager.feedback.index') }}"
+        class="{{ request()->routeIs('admin.manager.feedback.*') ? 'active' : '' }}">
+        Users Feedback
+    </a>
+
 @endif
 
 
