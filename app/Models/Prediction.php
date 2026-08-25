@@ -26,5 +26,10 @@ class Prediction extends Model
     {
         return $this->belongsTo(BetSlip::class);
     }
+
+    public function feedback()
+    {
+        return $this->hasMany(PredictionFeedback::class);
+    }
 }
 
