@@ -14,10 +14,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
-    {
-        return view('auth.login');
+   public function create(Request $request): View
+{
+    if ($request->query('from') === 'chat') {
+        session(['login_to_chat' => true]);
     }
+
+    return view('auth.login');
+}
 
     /**
      * Handle an incoming authentication request.
@@ -30,16 +34,37 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
+        // ==============================
+        // DEVELOPER
+        // ==============================
         if ($user->role === 'developer') {
             return redirect('/admin/dev');
         }
 
+        // ==============================
+        // MANAGER
+        // ==============================
         if ($user->role === 'manager') {
             return redirect('/admin/manager');
         }
 
+        // ==============================
+        // CHAT USER
+        // Kama alifika login kupitia Chat,
+        // mrudishe kwenye Chat.
+        // ==============================
+        if ($request->session()->pull('login_to_chat', false)) {
+            return redirect('/chat');
+        }
+
+        // ==============================
+        // NORMAL USER
+        // User aliye-login kawaida
+        // abaki frontend.
+        // ==============================
         return redirect()->intended('/');
     }
+
     /**
      * Destroy an authenticated session.
      */
