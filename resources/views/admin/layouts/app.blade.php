@@ -164,6 +164,11 @@
        Messages
     </a>
 
+    <a href="{{ route('admin.manager.chat.index') }}"
+    class="{{ request()->routeIs('admin.manager.chat.*') ? 'active' : '' }}">
+        💬 Community Chat
+    </a>
+
     <a href="{{ route('admin.manager.feedback.index') }}"
         class="{{ request()->routeIs('admin.manager.feedback.*') ? 'active' : '' }}">
         Users Feedback
