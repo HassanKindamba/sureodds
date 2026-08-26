@@ -55,4 +55,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(PredictionFeedback::class);
     }
+
+    public function chatMessages()
+    {
+        return $this->hasMany(ChatMessage::class);
+    }
+
+    public function chatBans()
+    {
+        return $this->hasMany(ChatBan::class);
+    }
 }
