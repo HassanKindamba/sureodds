@@ -1,5 +1,7 @@
 @php
+
     use App\Models\BetSlip;
+    use Illuminate\Support\Facades\DB;
 
     /*
     |--------------------------------------------------------------------------
@@ -17,12 +19,26 @@
         ->get();
 
     $notificationCount = $siteNotifications->count();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMMUNITY CHAT
+    |--------------------------------------------------------------------------
+    | Idadi ya messages zilizopo kwenye Community Chat.
+    |
+    | Hii inaonyesha jumla ya messages zilizopo kwa sasa.
+    */
+
+    $communityMessageCount = DB::table('chat_messages')->count();
+
 @endphp
 
 
 <nav id="navbar">
 
     {{-- ================= LOGO ================= --}}
+
     <a href="/" class="logo">
 
         <div class="logo-icon">
@@ -37,31 +53,59 @@
 
 
     {{-- ================= NAV LINKS ================= --}}
+
     <ul class="nav-links" id="navLinks">
 
+        {{-- HOME --}}
+
         <li>
-            <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">
+
+            <a
+                href="/"
+                class="{{ request()->is('/') ? 'active' : '' }}"
+            >
                 Home
             </a>
+
         </li>
 
+
+        {{-- PREDICTIONS --}}
+
         <li>
-            <a href="/predictions"
-               class="{{ request()->is('predictions') ? 'active' : '' }}">
+
+            <a
+                href="/predictions"
+                class="{{ request()->is('predictions') ? 'active' : '' }}"
+            >
                 Predictions
             </a>
+
         </li>
 
+
+        {{-- ABOUT --}}
+
         <li>
-            <a href="/about"
-               class="{{ request()->is('about') ? 'active' : '' }}">
+
+            <a
+                href="/about"
+                class="{{ request()->is('about') ? 'active' : '' }}"
+            >
                 About
             </a>
+
         </li>
 
+
+        {{-- PREMIUM --}}
+
         <li>
-            <a href="/premium"
-               class="{{ request()->is('premium') ? 'active' : '' }}">
+
+            <a
+                href="/premium"
+                class="{{ request()->is('premium') ? 'active' : '' }}"
+            >
 
                 Premium
 
@@ -70,19 +114,69 @@
                 </span>
 
             </a>
+
         </li>
 
+
+        {{-- CONTACT --}}
+
         <li>
-            <a href="/contact"
-               class="{{ request()->is('contact') ? 'active' : '' }}">
+
+            <a
+                href="/contact"
+                class="{{ request()->is('contact') ? 'active' : '' }}"
+            >
                 Contact
             </a>
+
+        </li>
+
+
+        {{-- =========================================================
+             COMMUNITY CHAT
+        ========================================================== --}}
+
+        <li class="community-nav-item">
+
+            <a
+                href="{{ route('frontend.chat') }}"
+                class="
+                    community-nav-link
+                    {{ request()->is('chat') ? 'active' : '' }}
+                "
+                aria-label="Community Chat"
+            >
+
+                <span class="community-icon">
+                    💬
+                </span>
+
+                <span class="community-text">
+                    Community
+                </span>
+
+
+                {{-- COMMUNITY MESSAGE COUNT --}}
+
+                @if($communityMessageCount > 0)
+
+                    <span class="community-count">
+
+                        {{ $communityMessageCount > 99 ? '99+' : $communityMessageCount }}
+
+                    </span>
+
+                @endif
+
+            </a>
+
         </li>
 
 
         {{-- =========================================================
              NOTIFICATION
         ========================================================== --}}
+
         <li class="notification-wrapper">
 
             <button
@@ -93,6 +187,7 @@
             >
 
                 {{-- BELL --}}
+
                 <span
                     class="notification-bell"
                     id="notificationBell"
@@ -102,6 +197,7 @@
 
 
                 {{-- COUNT --}}
+
                 @if($notificationCount > 0)
 
                     <span
@@ -119,12 +215,14 @@
             {{-- =====================================================
                  NOTIFICATION DROPDOWN
             ====================================================== --}}
+
             <div
                 class="notification-dropdown"
                 id="notificationDropdown"
             >
 
                 {{-- HEADER --}}
+
                 <div class="notification-header">
 
                     <strong>
@@ -139,6 +237,7 @@
 
 
                 {{-- NOTIFICATIONS --}}
+
                 @forelse($siteNotifications as $notification)
 
                     <a
@@ -186,6 +285,7 @@
 
 
                 {{-- FOOTER --}}
+
                 <div class="notification-footer">
 
                     <a href="/predictions">
@@ -202,9 +302,14 @@
 
 
     {{-- ================= AUTH BUTTONS ================= --}}
-    <div class="nav-btns" id="navBtns">
+
+    <div
+        class="nav-btns"
+        id="navBtns"
+    >
 
         {{-- AUTH CHECK --}}
+
         @auth
 
             <span class="user-name">
@@ -238,6 +343,7 @@
                 Ingia
             </a>
 
+
             <a
                 href="{{ route('register') }}"
                 class="btn-register"
@@ -251,6 +357,7 @@
 
 
     {{-- ================= HAMBURGER ================= --}}
+
     <div
         class="hamburger"
         id="hamburger"
@@ -266,18 +373,126 @@
 </nav>
 
 
+
 {{-- ================================================================
-     NOTIFICATION CSS
+     COMMUNITY + NOTIFICATION CSS
 ================================================================ --}}
 
 <style>
 
-.notification-wrapper {
+/* =========================================================
+   COMMUNITY NAV
+========================================================= */
+
+.community-nav-item {
     position: relative;
 }
 
 
-/* BUTTON */
+.community-nav-link {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    text-decoration: none;
+
+    position: relative;
+
+    white-space: nowrap;
+
+}
+
+
+.community-icon {
+
+    font-size: 17px;
+
+    line-height: 1;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.community-text {
+    display: inline-block;
+}
+
+
+/* =========================================================
+   COMMUNITY COUNT
+========================================================= */
+
+.community-count {
+
+    min-width: 18px;
+
+    height: 18px;
+
+    padding: 0 5px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #e74c3c;
+
+    color: #fff;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    line-height: 1;
+
+    box-shadow: 0 0 0 2px var(--dark);
+
+}
+
+
+/* =========================================================
+   COMMUNITY ACTIVE STATE
+========================================================= */
+
+.community-nav-link.active {
+
+    color: var(--gold);
+
+}
+
+
+.community-nav-link.active .community-icon {
+
+    transform: scale(1.05);
+
+}
+
+
+/* =========================================================
+   NOTIFICATION WRAPPER
+========================================================= */
+
+.notification-wrapper {
+
+    position: relative;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION BUTTON
+========================================================= */
 
 .notification-btn {
 
@@ -296,10 +511,13 @@
     align-items: center;
 
     justify-content: center;
+
 }
 
 
-/* BELL */
+/* =========================================================
+   BELL
+========================================================= */
 
 .notification-bell {
 
@@ -310,10 +528,13 @@
     animation: bellShake 1.5s infinite;
 
     transform-origin: top center;
+
 }
 
 
-/* BELL ANIMATION */
+/* =========================================================
+   BELL ANIMATION
+========================================================= */
 
 @keyframes bellShake {
 
@@ -348,7 +569,9 @@
 }
 
 
-/* COUNT */
+/* =========================================================
+   NOTIFICATION COUNT
+========================================================= */
 
 .notification-count {
 
@@ -381,10 +604,13 @@
     justify-content: center;
 
     border: 2px solid var(--dark);
+
 }
 
 
-/* DROPDOWN */
+/* =========================================================
+   NOTIFICATION DROPDOWN
+========================================================= */
 
 .notification-dropdown {
 
@@ -409,16 +635,20 @@
     display: none;
 
     z-index: 2000;
+
 }
 
 
 .notification-dropdown.show {
 
     display: block;
+
 }
 
 
-/* HEADER */
+/* =========================================================
+   NOTIFICATION HEADER
+========================================================= */
 
 .notification-header {
 
@@ -431,6 +661,7 @@
     padding: 15px 17px;
 
     border-bottom: 1px solid rgba(255,255,255,0.06);
+
 }
 
 
@@ -439,6 +670,7 @@
     color: var(--text);
 
     font-size: 15px;
+
 }
 
 
@@ -447,10 +679,13 @@
     color: var(--gold);
 
     font-size: 11px;
+
 }
 
 
-/* ITEM */
+/* =========================================================
+   NOTIFICATION ITEM
+========================================================= */
 
 .notification-item {
 
@@ -467,16 +702,20 @@
     text-decoration: none;
 
     color: inherit;
+
 }
 
 
 .notification-item:hover {
 
     background: rgba(240,192,64,0.05);
+
 }
 
 
-/* ICON */
+/* =========================================================
+   NOTIFICATION ICON
+========================================================= */
 
 .notification-icon {
 
@@ -497,10 +736,13 @@
     border-radius: 9px;
 
     font-size: 17px;
+
 }
 
 
-/* TITLE */
+/* =========================================================
+   NOTIFICATION TITLE
+========================================================= */
 
 .notification-item strong {
 
@@ -511,10 +753,13 @@
     font-size: 13px;
 
     margin-bottom: 3px;
+
 }
 
 
-/* MESSAGE */
+/* =========================================================
+   NOTIFICATION MESSAGE
+========================================================= */
 
 .notification-item p {
 
@@ -525,20 +770,26 @@
     margin: 0 0 4px;
 
     line-height: 1.4;
+
 }
 
 
-/* TIME */
+/* =========================================================
+   NOTIFICATION TIME
+========================================================= */
 
 .notification-item small {
 
     color: #666;
 
     font-size: 10px;
+
 }
 
 
-/* EMPTY */
+/* =========================================================
+   NOTIFICATION EMPTY
+========================================================= */
 
 .notification-empty {
 
@@ -547,6 +798,7 @@
     text-align: center;
 
     color: var(--muted);
+
 }
 
 
@@ -555,10 +807,13 @@
     margin: 8px 0 0;
 
     font-size: 12px;
+
 }
 
 
-/* FOOTER */
+/* =========================================================
+   NOTIFICATION FOOTER
+========================================================= */
 
 .notification-footer {
 
@@ -567,6 +822,7 @@
     text-align: center;
 
     background: rgba(0,0,0,0.15);
+
 }
 
 
@@ -579,18 +835,47 @@
     font-size: 12px;
 
     font-weight: 600;
+
 }
 
 
 .notification-footer a:hover {
 
     text-decoration: underline;
+
 }
 
 
-/* MOBILE */
+/* =========================================================
+   MOBILE
+========================================================= */
 
 @media (max-width: 768px) {
+
+    .community-nav-link {
+
+        gap: 5px;
+
+    }
+
+
+    .community-icon {
+
+        font-size: 16px;
+
+    }
+
+
+    .community-count {
+
+        min-width: 17px;
+
+        height: 17px;
+
+        font-size: 9px;
+
+    }
+
 
     .notification-dropdown {
 
@@ -609,6 +894,7 @@
 }
 
 </style>
+
 
 
 {{-- ================================================================
@@ -644,6 +930,7 @@ document.addEventListener('click', function(event) {
 
     const dropdown =
         document.getElementById('notificationDropdown');
+
 
     if (
         wrapper &&
