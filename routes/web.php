@@ -13,6 +13,8 @@ use App\Http\Controllers\Frontend\PredictionsController;
 use App\Http\Controllers\Frontend\PremiumController as FrontendPremiumController;
 use App\Http\Controllers\Frontend\ContactController;
 
+use App\Http\Controllers\Manager\ChatController as ManagerChatController;
+
 use App\Http\Controllers\PredictionFeedbackController;
 
 use App\Http\Controllers\Dev\MonitoringController;
@@ -48,6 +50,21 @@ Route::post('/contact', [ContactController::class, 'store'])->name('frontend.con
 
 Route::post('/predictions/{prediction}/feedback', [PredictionFeedbackController::class, 'store'])
     ->name('predictions.feedback');
+
+
+
+/*
+|--------------------------------------------------------------------------
+| 💬 FRONTEND CHAT
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/chat', [\App\Http\Controllers\ChatController::class, 'index'])
+    ->name('frontend.chat');
+
+Route::post('/chat', [\App\Http\Controllers\ChatController::class, 'store'])
+    ->middleware('auth')
+    ->name('frontend.chat.store');
 
 
 /*
@@ -201,6 +218,33 @@ Route::middleware(['auth', 'role:manager'])
     Route::delete('/feedback/{feedback}', [ManagerFeedbackController::class, 'destroy'])
     ->name('feedback.destroy');
 
+
+    Route::post('/chat', [\App\Http\Controllers\Manager\ChatController::class, 'store'])
+    ->name('chat.store');
+
+        /*
+    |--------------------------------------------------------------------------
+    | 💬 COMMUNITY CHAT MANAGEMENT
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/chat', [\App\Http\Controllers\Manager\ChatController::class, 'index'])
+        ->name('chat.index');
+
+    Route::patch('/chat/{id}/pin', [\App\Http\Controllers\Manager\ChatController::class, 'pin'])
+        ->name('chat.pin');
+
+    Route::patch('/chat/{id}/unpin', [\App\Http\Controllers\Manager\ChatController::class, 'unpin'])
+        ->name('chat.unpin');
+
+    Route::delete('/chat/{id}', [\App\Http\Controllers\Manager\ChatController::class, 'destroy'])
+        ->name('chat.destroy');
+
+    Route::post('/chat/user/{userId}/ban', [\App\Http\Controllers\Manager\ChatController::class, 'ban'])
+        ->name('chat.ban');
+
+    Route::delete('/chat/ban/{id}', [\App\Http\Controllers\Manager\ChatController::class, 'unban'])
+        ->name('chat.unban');
 });
 
 /*
