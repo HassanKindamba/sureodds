@@ -14,14 +14,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-   public function create(Request $request): View
-{
-    if ($request->query('from') === 'chat') {
-        session(['login_to_chat' => true]);
-    }
+    public function create(Request $request): View
+    {
+        if ($request->query('from') === 'chat') {
+            session(['login_to_chat' => true]);
+        }
 
-    return view('auth.login');
-}
+        return view('auth.login');
+    }
 
     /**
      * Handle an incoming authentication request.
@@ -34,34 +34,29 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        // ==============================
-        // DEVELOPER
-        // ==============================
+        // 1. DEVELOPER
         if ($user->role === 'developer') {
             return redirect('/admin/dev');
         }
 
-        // ==============================
-        // MANAGER
-        // ==============================
+        // 2. MANAGER
         if ($user->role === 'manager') {
             return redirect('/admin/manager');
         }
 
-        // ==============================
-        // CHAT USER
-        // Kama alifika login kupitia Chat,
-        // mrudishe kwenye Chat.
-        // ==============================
+        // 3. PENDING PAYMENT (Kama alikuwa anataka kulipia VIP kabla hajalogin)
+        if ($request->session()->has('pending_payment')) {
+            $paymentData = $request->session()->pull('pending_payment'); // pull() inachukua na kufuta session mara moja
+
+            return redirect()->route('payment.process_pending', $paymentData);
+        }
+
+        // 4. CHAT USER (Kama alikuja kupitia Chat)
         if ($request->session()->pull('login_to_chat', false)) {
             return redirect('/chat');
         }
 
-        // ==============================
-        // NORMAL USER
-        // User aliye-login kawaida
-        // abaki frontend.
-        // ==============================
+        // 5. NORMAL USER (Mtumiaji wa kawaida)
         return redirect()->intended('/');
     }
 
