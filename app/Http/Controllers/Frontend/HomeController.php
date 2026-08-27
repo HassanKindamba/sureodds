@@ -14,6 +14,12 @@ class HomeController extends Controller
     {
         $home = Home::first();
 
+if (!$home) {
+    $home = new Home();
+    $home->title = 'Welcome to Sure Odds';
+    $home->description = 'Get the latest predictions and analysis.';
+}
+
         $betSlips = BetSlip::with('predictions')
             ->latest()
             ->take(5)
