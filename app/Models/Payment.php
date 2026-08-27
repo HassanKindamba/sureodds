@@ -2,16 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
-        'amount',
-        'method',
+        'reference',
         'transaction_id',
-        'status'
+        'phone_number',
+        'amount',
+        'provider',
+        'status',
     ];
 
     public function user()
