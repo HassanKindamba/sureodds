@@ -3,107 +3,180 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\Payments\PaymentService;
+use App\Services\AzamPayService;
 use App\Models\Payment;
-use App\Models\SubscriptionPlan;
-use App\Models\UserSubscription;
-use Illuminate\Support\Facades\Log;
+use App\Models\Subscription;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    /**
-     * INITIATE PAYMENT
-     */
-    public function pay(Request $request, PaymentService $paymentService)
+    protected AzamPayService $azamPayService;
+
+    public function __construct(AzamPayService $azamPayService)
     {
-        $request->validate([
-            'plan_id' => 'required|exists:subscription_plans,id',
-            'method'  => 'required|in:mpesa,airtel,tigo,halopesa',
-            'phone'   => 'required',
-        ]);
-
-        $plan = SubscriptionPlan::findOrFail($request->plan_id);
-
-        // 🔥 CONSISTENT REFERENCE FORMAT
-        $reference = 'PLAN-' . $plan->id . '-' . time() . '-' . auth()->id();
-
-        // Call payment gateway service
-        $gatewayResponse = $paymentService->pay(
-            $request->method,
-            $request->phone,
-            $plan->price,
-            $reference
-        );
-
-        // Save pending payment
-        $payment = Payment::create([
-            'user_id'        => auth()->id(),
-            'amount'         => $plan->price,
-            'method'         => $request->method,
-            'transaction_id' => $reference,
-            'status'         => 'pending',
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment request initiated',
-            'payment' => $payment,
-            'gateway' => $gatewayResponse
-        ]);
+        $this->azamPayService = $azamPayService;
     }
 
     /**
-     * MPESA CALLBACK (AUTO ACTIVATION)
+     * Msaada wa kusafisha namba ya simu iwe ya Kimataifa (255...)
      */
-    public function mpesaCallback(Request $request)
-{
-    Log::info('Payment Callback Received:', $request->all());
+    private function formatPhoneNumber($phone)
+    {
+        $phone = preg_replace('/[^0-9]/', '', $phone);
 
-    $status = $request->input('status');
-    $reference = $request->input('reference');
-    $transactionId = $request->input('transaction_id');
+        if (str_starts_with($phone, '0')) {
+            return '255' . substr($phone, 1);
+        }
 
-    if ($status !== 'SUCCESS') {
-        return response()->json(['message' => 'Payment failed']);
+        return $phone;
     }
 
-    $payment = Payment::where('transaction_id', $reference)
-        ->where('status', 'pending')
-        ->first();
+    /**
+     * 1. Kuanzisha ombi la Malipo (STK Push)
+     */
+    public function initiate(Request $request)
+    {
+        // A. Angalia kama mtumiaji hajalogin
+        if (!auth()->check()) {
+            session()->put('pending_payment', [
+                'plan_id'  => $request->plan_id,
+                'amount'   => $request->amount,
+                'days'     => $request->days,
+                'provider' => $request->provider,
+                'phone'    => $request->phone,
+            ]);
 
-    if (!$payment) {
-        return response()->json(['message' => 'Payment not found']);
+            return redirect()->route('login')
+                ->with('info', 'Tafadhali ingia kwenye akaunti yako au sajili mpya ili kukamilisha malipo.');
+        }
+
+        // B. Validate taarifa zilizotumwa
+        $request->validate([
+            'phone'    => 'required',
+            'amount'   => 'required|numeric|min:500',
+            'provider' => 'required|string',
+            'days'     => 'required|integer|min:1',
+        ]);
+
+        $formattedPhone = $this->formatPhoneNumber($request->phone);
+        $reference = 'SURE_' . strtoupper(uniqid());
+
+        // C. Hifadhi muamala ukiwa na status 'pending'
+        $payment = Payment::create([
+            'user_id'      => auth()->id(),
+            'reference'    => $reference,
+            'phone_number' => $formattedPhone,
+            'amount'       => $request->amount,
+            'provider'     => $request->provider,
+            'status'       => 'pending',
+        ]);
+
+        // D. Tuma request kwenda AzamPay
+        try {
+            $this->azamPayService->triggerMnoCheckout(
+                $formattedPhone,
+                $request->amount,
+                $reference,
+                $request->provider
+            );
+
+            return redirect()->back()->with('success', 'Tafadhali thibitisha malipo kwenye simu yako (' . $formattedPhone . ') kwa kuingiza PIN.');
+
+        } catch (\Exception $e) {
+            Log::error('AzamPay Error: ' . $e->getMessage());
+            $payment->update(['status' => 'failed']);
+
+            return back()->with('error', 'Kosa la AzamPay: ' . $e->getMessage());
+        }
     }
 
-    $payment->update([
-        'status' => 'success',
-        'transaction_id' => $transactionId
-    ]);
+    /**
+     * Kushughulikia malipo yaliyokuwa yanasubiri baada ya mtumiaji kulogin/kujisajili.
+     */
+    public function processPending(Request $request)
+    {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
 
-    $parts = explode('-', $reference);
-    $planId = $parts[1] ?? null;
+        $request->validate([
+            'phone'    => 'required',
+            'amount'   => 'required|numeric',
+            'provider' => 'required|string',
+            'days'     => 'required|integer',
+        ]);
 
-    $plan = SubscriptionPlan::find($planId);
+        $formattedPhone = $this->formatPhoneNumber($request->phone);
+        $reference = 'SURE_' . strtoupper(uniqid());
 
-    if (!$plan) {
-        return response()->json(['message' => 'Plan not found']);
+        $payment = Payment::create([
+            'user_id'      => auth()->id(),
+            'reference'    => $reference,
+            'phone_number' => $formattedPhone,
+            'amount'       => $request->amount,
+            'provider'     => $request->provider,
+            'status'       => 'pending',
+        ]);
+
+        try {
+            $this->azamPayService->triggerMnoCheckout(
+                $formattedPhone,
+                $request->amount,
+                $reference,
+                $request->provider
+            );
+
+            return redirect('/premium')
+                ->with('success', 'Tafadhali thibitisha malipo kwenye simu yako (' . $formattedPhone . ') kwa kuingiza PIN.');
+
+       } catch (\Exception $e) {
+            Log::error('AzamPay Error: ' . $e->getMessage());
+            $payment->update(['status' => 'failed']);
+
+            return back()->with('error', 'Kosa la AzamPay: ' . $e->getMessage());
+        }
     }
 
-    UserSubscription::where('user_id', $payment->user_id)
-        ->where('status', 'active')
-        ->update(['status' => 'expired']);
+    /**
+     * 2. Webhook / Callback kutoka AzamPay (Baada ya malipo kukamilika)
+     */
+    public function handleCallback(Request $request)
+    {
+        Log::info('AzamPay Callback Received:', $request->all());
 
-    UserSubscription::create([
-        'user_id' => $payment->user_id,
-        'subscription_plan_id' => $plan->id,
-        'starts_at' => now(),
-        'expires_at' => now()->addDays($plan->duration_days),
-        'status' => 'active'
-    ]);
+        $reference     = $request->input('externalId');
+        $success       = $request->input('success');
+        $transactionId = $request->input('transactionId');
 
-    return response()->json([
-        'message' => 'Payment processed successfully'
-    ]);
-}
+        $payment = Payment::where('reference', $reference)->first();
+
+        if (!$payment) {
+            return response()->json(['message' => 'Transaction not found'], 404);
+        }
+
+        if ($success === true || $success === 'true') {
+            if ($payment->status !== 'completed') {
+                $payment->update([
+                    'status'         => 'completed',
+                    'transaction_id' => $transactionId
+                ]);
+
+                // Weka Siku za Subscription kulingana na Kifurushi
+                $daysToAdd = $payment->amount >= 5000 ? 30 : 7; 
+
+                Subscription::create([
+                    'user_id'    => $payment->user_id,
+                    'plan_name'  => $daysToAdd . ' Day(s) VIP',
+                    'starts_at'  => Carbon::now(),
+                    'expires_at' => Carbon::now()->addDays($daysToAdd),
+                    'status'     => 'active'
+                ]);
+            }
+        } else {
+            $payment->update(['status' => 'failed']);
+        }
+
+        return response()->json(['status' => 'success'], 200);
+    }
 }
