@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "12.60",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "safaricom/mpesa": "^1.0"
     },
