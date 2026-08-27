@@ -8,19 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('prediction_feedback', function (Blueprint $table) {
-            $table->foreignId('prediction_id')
-                ->after('user_id')
-                ->constrained('predictions')
-                ->onDelete('cascade');
-        });
+        // Inakagua kwanza: Kama column HAIPO, ndiyo inaiweka
+        if (!Schema::hasColumn('prediction_feedback', 'prediction_id')) {
+            Schema::table('prediction_feedback', function (Blueprint $table) {
+                $table->foreignId('prediction_id')->after('user_id')->constrained()->onDelete('cascade');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('prediction_feedback', function (Blueprint $table) {
-            $table->dropForeign(['prediction_id']);
-            $table->dropColumn('prediction_id');
-        });
+        if (Schema::hasColumn('prediction_feedback', 'prediction_id')) {
+            Schema::table('prediction_feedback', function (Blueprint $table) {
+                $table->dropForeign(['prediction_id']);
+                $table->dropColumn('prediction_id');
+            });
+        }
     }
 };
