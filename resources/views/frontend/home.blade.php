@@ -33,7 +33,7 @@
                 Tazama Mikeka
             </button>
 
-            <a href="{{ route('frontend.premium') }}" class="cta-secondary">
+            <a href="{{ route('premium') }}" class="cta-secondary">
                 Jiunge VIP →
             </a>
         </div>
@@ -2210,7 +2210,7 @@ document.addEventListener(
                     <li><span class="chk">✓</span> Premium access</li>
                 </ul>
 
-                <form method="POST" action="{{ route('payments.pay') }}">
+                <form method="POST" action="{{ route('payment.initiate') }}">
                     @csrf
 
                     <input type="hidden" name="plan_id" value="{{ $plan->id }}">
