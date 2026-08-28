@@ -74,17 +74,26 @@ class PaymentController extends Controller
 
         // D. Tuma request kwenda AzamPay
         try {
-            $this->azamPayService->triggerMnoCheckout(
+            $response = $this->azamPayService->triggerMnoCheckout(
                 $formattedPhone,
                 $request->amount,
                 $reference,
                 $request->provider
             );
 
+            // MUHIMU: Chapisha response kamili ya AzamPay ili kuona kilichojiri kwa MNO
+            Log::info('AzamPay Checkout Response [' . $reference . ']:', is_array($response) ? $response : ['raw' => $response]);
+
+            // Hifadhi transactionId/message kama zipo, ili kusaidia debugging baadaye
+            $payment->update([
+                'transaction_id' => $response['transactionId'] ?? $response['data']['transactionId'] ?? null,
+                'gateway_message' => $response['message'] ?? $response['data']['message'] ?? null,
+            ]);
+
             return redirect()->back()->with('success', 'Tafadhali thibitisha malipo kwenye simu yako (' . $formattedPhone . ') kwa kuingiza PIN.');
 
         } catch (\Exception $e) {
-            Log::error('AzamPay Error: ' . $e->getMessage());
+            Log::error('AzamPay Error [' . $reference . ']: ' . $e->getMessage());
             $payment->update(['status' => 'failed']);
 
             return back()->with('error', 'Kosa la AzamPay: ' . $e->getMessage());
@@ -120,18 +129,25 @@ class PaymentController extends Controller
         ]);
 
         try {
-            $this->azamPayService->triggerMnoCheckout(
+            $response = $this->azamPayService->triggerMnoCheckout(
                 $formattedPhone,
                 $request->amount,
                 $reference,
                 $request->provider
             );
 
+            Log::info('AzamPay Checkout Response [' . $reference . ']:', is_array($response) ? $response : ['raw' => $response]);
+
+            $payment->update([
+                'transaction_id' => $response['transactionId'] ?? $response['data']['transactionId'] ?? null,
+                'gateway_message' => $response['message'] ?? $response['data']['message'] ?? null,
+            ]);
+
             return redirect('/premium')
                 ->with('success', 'Tafadhali thibitisha malipo kwenye simu yako (' . $formattedPhone . ') kwa kuingiza PIN.');
 
        } catch (\Exception $e) {
-            Log::error('AzamPay Error: ' . $e->getMessage());
+            Log::error('AzamPay Error [' . $reference . ']: ' . $e->getMessage());
             $payment->update(['status' => 'failed']);
 
             return back()->with('error', 'Kosa la AzamPay: ' . $e->getMessage());
