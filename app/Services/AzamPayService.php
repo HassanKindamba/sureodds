@@ -12,6 +12,7 @@ class AzamPayService
     protected string $appName;
     protected string $clientId;
     protected string $clientSecret;
+    protected string $apiKey;
 
     public function __construct()
     {
@@ -20,25 +21,37 @@ class AzamPayService
         $this->appName = env('AZAMPAY_APP_NAME', '');
         $this->clientId = env('AZAMPAY_CLIENT_ID', '');
         $this->clientSecret = env('AZAMPAY_CLIENT_SECRET', '');
+        $this->apiKey = env('AZAMPAY_API_KEY', ''); // Inahitajika kwenye Sandbox (X-API-Key)
     }
 
     /**
-     * Kupata Access Token kutoka AzamPay Sandbox
+     * Kupata Access Token kutoka AzamPay
      */
     public function getAccessToken()
     {
-        // withoutVerifying() inazuia SSL error kwenye Localhost
-        $response = Http::withoutVerifying()->post("{$this->baseUrl}/AppAuth/gettoken", [
-            'appName'      => $this->appName,
-            'clientId'     => $this->clientId,
-            'clientSecret' => $this->clientSecret,
+        $url = "{$this->baseUrl}/AppRegistration/GenerateToken";
+
+        $request = Http::withoutVerifying()
+            ->timeout(30)
+            ->retry(2, 100)
+            ->asJson();
+
+        // X-API-Key inahitajika kwenye Sandbox pekee (huna haja yake production)
+        if (!empty($this->apiKey)) {
+            $request = $request->withHeaders(['X-API-Key' => $this->apiKey]);
+        }
+
+        $response = $request->post($url, [
+            'appName'      => trim($this->appName),
+            'clientId'     => trim($this->clientId),
+            'clientSecret' => trim($this->clientSecret),
         ]);
 
         if ($response->successful() && isset($response->json()['data']['accessToken'])) {
             return $response->json()['data']['accessToken'];
         }
 
-        throw new Exception('AzamPay Auth Error: ' . $response->body());
+        throw new Exception('AzamPay Auth Error (' . $response->status() . '): ' . $response->body());
     }
 
     /**
@@ -48,10 +61,11 @@ class AzamPayService
     {
         $token = $this->getAccessToken();
 
-        // Rekebisha format ya namba ya simu (mfano 0712345678 kuwa 255712345678)
         $formattedPhone = $this->formatPhoneNumber($phone);
 
         $response = Http::withoutVerifying()
+            ->timeout(30)
+            ->retry(2, 100)
             ->withToken($token)
             ->post($this->checkoutUrl, [
                 'accountNumber' => $formattedPhone,
