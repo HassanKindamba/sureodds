@@ -163,12 +163,13 @@
 
           {{-- SELECT NETWORK --}}
           <select name="provider" required
-                  style="width:100%; padding:10px; margin-bottom:10px; border-radius:6px; background:#1f2937; color:#fff; border:1px solid #4b5563;">
+              style="width:100%; padding:10px; margin-bottom:10px; border-radius:6px; background:#1f2937; color:#fff; border:1px solid #4b5563;">
               <option value="">Chagua Mtandao</option>
               <option value="Mpesa">Vodacom M-Pesa</option>
               <option value="Tigo">Tigo Pesa</option>
               <option value="Airtel">Airtel Money</option>
-              <option value="AzamPesa">HaloPesa / AzamPesa</option>
+              <option value="Halopesa">HaloPesa (Halotel)</option>
+              <option value="Azampesa">AzamPesa</option>
           </select>
 
           {{-- PHONE NUMBER --}}
